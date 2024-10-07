@@ -1,6 +1,5 @@
 <h1>D-Voting</h1>
-
-# Decentralized Voting System
+<h3>Decentralized Voting System</h3>
 
 A decentralized application (DApp) for conducting transparent and secure voting using blockchain technology.
 
