@@ -36,7 +36,7 @@ Clone the repository to your local machine:
 ## Check the Logs
 
 - The contract is deployed on the Polygon Amoy Test Network.
-- View the deployment transaction: [View on OKLink](https://www.oklink.com/amoy/tx/0x7a6063dbc33476a3aad44cda00a16155afcdcfb609840af7ba7fa542d0d3608b)
+- View the deployment transaction: [View on OKLink](https://www.oklink.com/amoy/address/0x582e28f39e59621b3052150dac03b785844d9473)
 
 ## Contract Address
 
