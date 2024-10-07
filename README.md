@@ -1,1 +1,41 @@
-## The decentralised voting system
+<h1>D-Voting</h1>
+
+# Decentralized Voting System
+
+A decentralized application (DApp) for conducting transparent and secure voting using blockchain technology.
+
+## Technologies Used
+
+- **Solidity**: Smart contract development language for the Ethereum blockchain.
+- **Ether.js**: JavaScript library to interact with Ethereum blockchain and smart contracts.
+- **React.js**: Frontend library for building user interfaces.
+- **Express.js**: Backend framework for handling API requests.
+- **MongoDB**: Database to store user and voting information.
+
+## Features
+
+- Decentralized voting system using Ethereum smart contracts.
+- Role-based registration (Voters and Candidates).
+- Voting results stored securely on the blockchain.
+- User-friendly interface for casting and managing votes.
+- Transparent and tamper-proof voting process.
+
+
+### Prerequisites
+
+Ensure you have the following installed:
+
+- Node.js (v16 or higher)
+- MongoDB
+- MetaMask (or any Ethereum-compatible wallet)
+
+### Clone the Repository
+Clone the repository to your local machine: 
+ ``https://github.com/swappy-sutar/D-voting.git``
+
+
+## Check the Logs
+- The contract is deployed on the Polygon Amoy Test Network.
+- View the deployment transaction:
+``https://www.oklink.com/amoy/tx/0x7a6063dbc33476a3aad44cda00a16155afcdcfb609840af7ba7fa542d0d3608b``
+ 
