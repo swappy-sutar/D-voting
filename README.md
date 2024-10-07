@@ -20,7 +20,6 @@ A decentralized application (DApp) for conducting transparent and secure voting 
 - User-friendly interface for casting and managing votes.
 - Transparent and tamper-proof voting process.
 
-
 ### Prerequisites
 
 Ensure you have the following installed:
@@ -30,12 +29,16 @@ Ensure you have the following installed:
 - MetaMask (or any Ethereum-compatible wallet)
 
 ### Clone the Repository
-Clone the repository to your local machine: 
- ``https://github.com/swappy-sutar/D-voting.git``
 
+Clone the repository to your local machine:
+
+[Clone Repo](https://github.com/swappy-sutar/D-voting.git)
 
 ## Check the Logs
+
 - The contract is deployed on the Polygon Amoy Test Network.
-- View the deployment transaction:
-``https://www.oklink.com/amoy/tx/0x7a6063dbc33476a3aad44cda00a16155afcdcfb609840af7ba7fa542d0d3608b``
- 
+- View the deployment transaction: [View on OKLink](https://www.oklink.com/amoy/tx/0x7a6063dbc33476a3aad44cda00a16155afcdcfb609840af7ba7fa542d0d3608b)
+
+## Contract Address
+
+- The deployed contract address is: `0x582e28f39e59621B3052150DAc03b785844d9473`
