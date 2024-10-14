@@ -5,7 +5,7 @@ import { app } from "./app.js";
 dotenv.config();
 
 app.use("/",(req,res)=>{
-  res.send("Hello from server");
+  res.send("Welcome to D-voting Backend");
 
 })
 
