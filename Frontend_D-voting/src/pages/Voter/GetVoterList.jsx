@@ -4,6 +4,7 @@ import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { useNavigate } from "react-router-dom";
 import { Log } from "ethers";
+import Layout from "../../Components/Layout";
 
 const apiurl = import.meta.env.VITE_WEB_URL;
 
@@ -17,6 +18,8 @@ function GetVoter() {
   const navigateTo = useNavigate();
 
    const token = localStorage.getItem("token");
+   console.log("token", token);
+   
  
   useEffect(() => {
     if (!token) {
@@ -117,91 +120,93 @@ function GetVoter() {
   };
 
   return (
-    <div className="flex flex-col items-center justify-center min-h-screen p-4">
-      <ToastContainer />
-      <div className="w-full max-w-4xl bg-white rounded-lg shadow-lg p-6">
-        <h2 className="text-3xl font-extrabold text-gray-900 mb-8 text-center">
-          Voter List
-        </h2>
+    <Layout>
+      <div className="flex flex-col items-center justify-center min-h-screen p-4">
+        <ToastContainer />
+        <div className="w-full max-w-5xl bg-white rounded-lg shadow-lg p-6">
+          <h2 className="text-3xl font-extrabold text-gray-900 mb-8 text-center">
+            Voter List
+          </h2>
 
-        {loading ? (
-          <p className="text-center text-gray-600">Loading...</p>
-        ) : error ? (
-          <p className="text-center text-red-600">{error}</p>
-        ) : (
-          <div className="overflow-x-auto">
-            <table className="min-w-full divide-y divide-gray-200">
-              <thead className="bg-gray-200">
-                <tr>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-700 uppercase tracking-wider">
-                    ID
-                  </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-700 uppercase tracking-wider">
-                    Name
-                  </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-700 uppercase tracking-wider">
-                    Address
-                  </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-700 uppercase tracking-wider">
-                    Age
-                  </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-700 uppercase tracking-wider">
-                    Gender
-                  </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-700 uppercase tracking-wider">
-                    photo
-                  </th>
-                </tr>
-              </thead>
-              <tbody className="bg-white divide-y divide-gray-200">
-                {voterList.length === 0 ? (
+          {loading ? (
+            <p className="text-center text-gray-600">Loading...</p>
+          ) : error ? (
+            <p className="text-center text-red-600">{error}</p>
+          ) : (
+            <div className="">
+              <table className="min-w-full divide-y divide-gray-200">
+                <thead className="bg-gray-200">
                   <tr>
-                    <td
-                      colSpan="6"
-                      className="px-6 py-4 text-center text-gray-600"
-                    >
-                      No voters found.
-                    </td>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-700 uppercase tracking-wider">
+                      ID
+                    </th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-700 uppercase tracking-wider">
+                      Name
+                    </th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-700 uppercase tracking-wider">
+                      Address
+                    </th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-700 uppercase tracking-wider">
+                      Age
+                    </th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-700 uppercase tracking-wider">
+                      Gender
+                    </th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-700 uppercase tracking-wider">
+                      photo
+                    </th>
                   </tr>
-                ) : (
-                  voterList.map((voter, index) => (
-                    <tr
-                      key={index}
-                      className="hover:bg-gray-100 transition-colors duration-300"
-                    >
-                      <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
-                        {index + 1}
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                        {voter.name}
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                        {voter.address}
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                        {voter.age}
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                        {voter.gender === 1
-                          ? "Male"
-                          : voter.gender === 2
-                          ? "Female"
-                          : voter.gender === 3
-                          ? "Other"
-                          : "Not Specified"}
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                        {getVoterImage(voter.address)}
+                </thead>
+                <tbody className="bg-white divide-y divide-gray-200">
+                  {voterList.length === 0 ? (
+                    <tr>
+                      <td
+                        colSpan="6"
+                        className="px-6 py-4 text-center text-gray-600"
+                      >
+                        No voters found.
                       </td>
                     </tr>
-                  ))
-                )}
-              </tbody>
-            </table>
-          </div>
-        )}
+                  ) : (
+                    voterList.map((voter, index) => (
+                      <tr
+                        key={index}
+                        className="hover:bg-gray-100 transition-colors duration-300"
+                      >
+                        <td className="px-6 py-6 whitespace-nowrap text-sm font-medium text-gray-900">
+                          {index + 1}
+                        </td>
+                        <td className="px-6 py-6 whitespace-nowrap text-sm text-gray-500">
+                          {voter.name}
+                        </td>
+                        <td className="px-6 py-6 whitespace-nowrap text-sm text-gray-500">
+                          {voter.address}
+                        </td>
+                        <td className="px-6 py-6 whitespace-nowrap text-sm text-gray-500">
+                          {voter.age}
+                        </td>
+                        <td className="px-6 py-6 whitespace-nowrap text-sm text-gray-500">
+                          {voter.gender === 1
+                            ? "Male"
+                            : voter.gender === 2
+                            ? "Female"
+                            : voter.gender === 3
+                            ? "Other"
+                            : "Not Specified"}
+                        </td>
+                        <td className="px-6 py-6 whitespace-nowrap text-sm text-gray-500">
+                          {getVoterImage(voter.address)}
+                        </td>
+                      </tr>
+                    ))
+                  )}
+                </tbody>
+              </table>
+            </div>
+          )}
+        </div>
       </div>
-    </div>
+    </Layout>
   );
 }
 

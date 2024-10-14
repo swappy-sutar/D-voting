@@ -9,21 +9,22 @@ const apiurl = import.meta.env.VITE_WEB_URL;
 
 function Vote() {
   const { web3State } = useWeb3Context();
-  const { contractInstance, selectedAccount } = web3State;
+  const { contractInstance } = web3State;
   const [candidateList, setCandidateList] = useState([]);
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [votingStatus, setVotingStatus] = useState("");
   const [candidateImages, setCandidateImages] = useState([]);
+  const [votingLoading, setVotingLoading] = useState({});
 
   const navigateTo = useNavigate();
   const token = localStorage.getItem("token");
 
   useEffect(() => {
-    if (!token) {
+    if (!token || !contractInstance) {
       navigateTo("/");
     }
-  }, [navigateTo, token]);
+  }, [navigateTo, contractInstance, token]);
 
   const votingStatusMap = {
     0: "Not Started",
@@ -129,10 +130,10 @@ function Vote() {
 
   const vote = async (candidate) => {
     try {
+      setVotingLoading((prev) => ({ ...prev, [candidate.address]: true }));
       const candidateAddress = candidate.address;
       const transaction = await contractInstance.vote(candidateAddress);
       const receipt = await transaction.wait();
-      console.log("receipt", receipt);
 
       if (receipt.status === 1) {
         toast.success("Vote Submitted successfully!");
@@ -144,6 +145,8 @@ function Vote() {
       const statusString =
         votingStatusMap[currentVotingStatus.toString()] || "Unknown Status";
       toast.error(`Status: Voting is ${statusString}`);
+    } finally {
+      setVotingLoading((prev) => ({ ...prev, [candidate.address]: false }));
     }
   };
 
@@ -156,7 +159,7 @@ function Vote() {
             Vote for Your Candidate
           </h2>
           <h3 className="text-lg font-extrabold text-gray-500 mb-4 text-center">
-            Status: "{votingStatus}"
+            Status: Voting is "{votingStatus}"
           </h3>
 
           {loading ? (
@@ -168,19 +171,19 @@ function Vote() {
               <table className="min-w-full divide-y divide-gray-200">
                 <thead className="bg-gray-200">
                   <tr>
-                    <th className="px-2 py-3 text-left text-xs font-medium text-gray-700 uppercase tracking-wider">
+                    <th className="px-10 py-3 text-left text-xs font-medium text-gray-700 uppercase tracking-wider">
                       ID
                     </th>
-                    <th className="px-2 py-3 text-left text-xs font-medium text-gray-700 uppercase tracking-wider">
+                    <th className="px-10 py-3 text-left text-xs font-medium text-gray-700 uppercase tracking-wider">
                       Candidate
                     </th>
-                    <th className="px-2 py-3 text-left text-xs font-medium text-gray-700 uppercase tracking-wider">
+                    <th className="px-10 py-3 text-left text-xs font-medium text-gray-700 uppercase tracking-wider">
                       Party
                     </th>
-                    <th className="px-2 py-3 text-left text-xs font-medium text-gray-700 uppercase tracking-wider">
+                    <th className="px-10 py-3 text-left text-xs font-medium text-gray-700 uppercase tracking-wider">
                       Image
                     </th>
-                    <th className="px-2 py-3 text-left text-xs font-medium text-gray-700 uppercase tracking-wider">
+                    <th className="px-10 py-3 text-left text-xs font-medium text-gray-700 uppercase tracking-wider">
                       Vote
                     </th>
                   </tr>
@@ -190,7 +193,7 @@ function Vote() {
                     <tr>
                       <td
                         colSpan="5"
-                        className="px-2 py-4 text-center text-gray-600"
+                        className="px-6 py-4 text-center text-gray-600"
                       >
                         No candidates found.
                       </td>
@@ -201,28 +204,30 @@ function Vote() {
                         key={index}
                         className="hover:bg-gray-100 transition-colors duration-300"
                       >
-                        <td className="px-2 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
+                        <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
                           {index + 1}
                         </td>
-                        <td className="px-2 py-4 whitespace-nowrap text-sm text-gray-500">
+                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                           {candidate.name}
                         </td>
-                        <td className="px-2 py-4 whitespace-nowrap text-sm text-gray-500">
+                        <td className="px-6 py-4 whitespace-nowrap font-bold text-sm text-gray-500">
                           {candidate.party}
                         </td>
-                        <td className="px-2 py-4 whitespace-nowrap text-sm text-gray-500">
+                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                           {getCandidateImage(candidate.address)}
                         </td>
-                        <td className="px-2 py-4 whitespace-nowrap text-sm text-gray-500">
+                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                           <button
                             type="button"
-                            disabled={loading}
-                            className={`w-full py-3  ${
-                              loading ? "bg-gray-400" : "bg-blue-600"
+                            disabled={votingLoading[candidate.address]}
+                            className={`w-32 py-3 ${
+                              votingLoading[candidate.address]
+                                ? "bg-gray-400"
+                                : "bg-blue-600"
                             } text-white font-semibold rounded-md transition duration-300 flex items-center justify-center`}
                             onClick={() => vote(candidate)}
                           >
-                            {loading ? (
+                            {votingLoading[candidate.address] ? (
                               <>
                                 <svg
                                   className="animate-spin h-5 w-5 mr-2"

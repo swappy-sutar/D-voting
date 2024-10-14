@@ -43,10 +43,6 @@ function RegisterCandidate() {
       const file = fileRef.current.files[0];
       let imageUrl = "";
 
-      if (file) {
-        imageUrl = await UploadImage(file, "candidate/candidate-image");
-      }
-
       const name = nameRef.current.value;
       const age = parseInt(ageRef.current.value, 10);
       const genderValue = parseInt(genderRef.current.value, 10);
@@ -81,7 +77,9 @@ function RegisterCandidate() {
       const receipt = await transaction.wait();
       if (receipt.status === 1) {
         toast.success("Candidate registered successfully!");
-        navigateTo("/get-candidate");
+        if (file) {
+          imageUrl = await UploadImage(file, "candidate/candidate-image");
+        }
       } else {
         toast.error("Failed to register candidate");
       }
@@ -103,10 +101,10 @@ function RegisterCandidate() {
   return (
     <Layout>
       <ToastContainer />
-      <div className="flex items-center my-14 mx-2 justify-center">
+      <div className="flex items-center my-14 mx-2 justify-center ">
         <form
           onSubmit={handleCandidateRegistration}
-          className="w-full max-w-lg bg-white p-8 rounded-lg shadow-lg space-y-4 md:max-w-md"
+          className="w-full max-w-lg bg-white p-8 rounded-lg shadow-lg space-y-4 md:max-w-md border"
         >
           <h2 className="text-3xl font-extrabold text-gray-900 mb-8 text-center">
             Register Candidate
@@ -196,7 +194,9 @@ function RegisterCandidate() {
             disabled={loading}
             className={`w-full py-3 mt-4 ${
               loading ? "bg-gray-400" : "bg-blue-600"
-            } text-white font-semibold rounded-md transition duration-300 flex items-center justify-center`}
+            } text-white hover:${
+              loading ? "text-gray-800" : "hover:text-gray-800"
+            } font-semibold rounded-md transition duration-300 flex items-center justify-center bg-gradient-to-r from-blue-500 to-indigo-500`}
           >
             {loading ? (
               <>
@@ -226,13 +226,14 @@ function RegisterCandidate() {
               "Register"
             )}
           </button>
+
           <p
             onClick={() => navigateTo("/register-voter")}
             className="mt-4 text-center"
           >
             Are you a voter?{" "}
             <span className="text-blue-500 hover:underline cursor-pointer mt-4 text-center">
-              Click here to register
+              Click here
             </span>
           </p>
         </form>

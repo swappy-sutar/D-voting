@@ -30,13 +30,17 @@ const GetWeb3State = async () => {
     const provider = new ethers.BrowserProvider(window.ethereum);
     const signer = await provider.getSigner();
 
-    // const contractAddress = "0x45fB28676998Cf05A5db70b42131011928d054Fc";  //old contract.sol
-    const contractAddress = "0x582e28f39e59621B3052150DAc03b785844d9473"; //contractV2.sol deploy on polygon amoy testnet
+    const contractAddress = "0xB32Ed632A2d02AfC6d5493a5F19983f01ea07C09"; //contractV2.sol deploy on polygon amoy testnet
 
     const message =
       "Welcome to Voting Dapp. You accept our terms and conditions";
     const signature = await signer.signMessage(message);
     const dataSignature = { signature };
+
+    console.log("Requesting authentication with:", {
+      accountAddress: selectedAccount,
+      signature: dataSignature.signature,
+    });
 
     const res = await axios.post(
       `${apiurl}/api/v1/auth/authentication?accountAddress=${selectedAccount}`,
@@ -59,8 +63,13 @@ const GetWeb3State = async () => {
 
     if (!contractInstance) {
       toast.error("Contract instance not found");
+      console.error("Contract instance not found");
     } else {
-      toast.success("Contract instance created successfully");
+      
+      console.log(
+        "Contract instance is successfully created:",
+        contractInstance
+      );
 
       return { contractInstance, selectedAccount, chainId, signer, provider };
     }

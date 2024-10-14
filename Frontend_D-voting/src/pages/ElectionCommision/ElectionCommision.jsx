@@ -64,8 +64,8 @@ function ElectionCommision() {
 
   return (
     <Layout>
-      <ToastContainer />
       <div className="flex flex-col items-center justify-center my-6 p-4 sm:p-6 md:p-8">
+        <ToastContainer />
         <div className="w-full max-w-5xl bg-white p-6 sm:p-8 md:p-10 rounded-xl shadow-md border border-gray-200">
           <h1 className="text-3xl sm:text-4xl font-extrabold text-gray-900 mb-3 text-center">
             Election Commission Dashboard
@@ -76,7 +76,7 @@ function ElectionCommision() {
           </h2>
 
           <h2 className="text-lg sm:text-xl font-extrabold text-gray-500 mb-3 text-center">
-            Status: "{votingStatus}"
+            Status: Voting is "{votingStatus}"
           </h2>
 
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 lg:gap-8">

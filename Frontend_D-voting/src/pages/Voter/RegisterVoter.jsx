@@ -46,9 +46,7 @@ function RegisterVoter() {
       const file = fileRef.current.files[0];
       let imageUrl = "";
 
-      if (file) {
-        imageUrl = await UploadImage(file, "voter/voter-image");
-      }
+   
 
       const name = nameRef.current.value;
       const age = parseInt(ageRef.current.value, 10);
@@ -67,9 +65,13 @@ function RegisterVoter() {
 
       const receipt = await transaction.wait();
 
+         
       if (receipt.status === 1) {
-        toast.success("Candidate registered successfully!");
-        navigateTo("/get-voter");
+        if (file) {
+          imageUrl = await UploadImage(file, "voter/voter-image");
+        }
+
+        toast.success("Voter registered successfully!");
       } else {
         toast.error("Failed to register candidate");
       }
@@ -93,7 +95,7 @@ function RegisterVoter() {
       <div className="flex items-center m-2 justify-center">
         <form
           onSubmit={handleVoterRegistration}
-          className="w-full max-w-lg bg-white p-8 rounded-lg shadow-lg space-y-4 md:max-w-md"
+          className="w-full max-w-lg bg-white p-8 rounded-lg shadow-lg space-y-4 md:max-w-md border"
         >
           <h2 className="text-3xl font-extrabold text-gray-900 mb-8 text-center">
             Register Voter
@@ -155,9 +157,7 @@ function RegisterVoter() {
             disabled={loading}
             className={`w-full py-3 mt-4 ${
               loading ? "bg-gray-400" : "bg-blue-600"
-            } text-white font-semibold rounded-md hover:${
-              loading ? "bg-gray-400" : "bg-blue-700"
-            } transition duration-300 flex items-center justify-center`}
+            } text-white  hover:text-gray-800  font-semibold rounded-md transition duration-300 flex items-center justify-center bg-gradient-to-r from-blue-500 to-indigo-500`}
           >
             {loading ? (
               <>
@@ -193,7 +193,7 @@ function RegisterVoter() {
           >
             Are you a candidate?{" "}
             <span className="text-blue-500 hover:underline cursor-pointer mt-4 text-center">
-              Click to register
+              Click here
             </span>
           </p>
         </form>
