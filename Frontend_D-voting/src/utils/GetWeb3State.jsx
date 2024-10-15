@@ -4,7 +4,7 @@ import axios from "axios";
 import { toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 
-const apiurl = import.meta.env.VITE_WEB_URL;
+const apiurl = import.meta.env.backend_URL;
 
 const GetWeb3State = async () => {
   try {
