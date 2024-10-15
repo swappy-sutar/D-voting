@@ -46,12 +46,16 @@ const GetWeb3State = async () => {
       `${apiurl}/api/v1/auth/authentication?accountAddress=${selectedAccount}`,
       dataSignature
     );
+    console.log("res",res);
     localStorage.setItem("token", res.data.token);
+    console.log("after set item");
+    
 
     let contractInstance;
 
     try {
       contractInstance = new ethers.Contract(contractAddress, abi, signer);
+      console.log("contractInstance",contractInstance);
     } catch (error) {
       toast.error("Failed to create contract instance");
       console.error(
