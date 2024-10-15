@@ -9,15 +9,5 @@ export default defineConfig({
     host: true,
     port: 5173,
   },
-  build: {
-    outDir: "dist",
-  },
-
-  resolve: {
-    alias: {},
-  },
-  preview: {
-    port: 4173,
-  },
   plugins: [vercel()],
 });
