@@ -11,9 +11,9 @@ const __dirname = path.dirname(__filename);
 
 app.use(
   cors({
-    origin: ["https://d-voting-swappy.vercel.app"],
-    methods:["POST","GET","DELETE"],
-    credentials:true
+    origin: ["https://d-voting-v1.vercel.app"],
+    methods: ["POST", "GET", "DELETE"],
+    credentials: true,
   })
 );
 app.use(express.json());
