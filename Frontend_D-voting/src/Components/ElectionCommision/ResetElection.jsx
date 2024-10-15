@@ -62,14 +62,17 @@ function ResetElection() {
 
   const deleteAllDataOfVoters = async () => {
     try {
-      const response = await fetch(`${apiurl}/api/v1/voter/delete-All-Voters`, {
-        method: "DELETE",
-        headers: {
-          "Content-Type": "application/json",
-          "x-access-token": token,
-          Authorization: `Bearer ${token}`,
-        },
-      });
+      const response = await fetch(
+        `https://d-voting-backend.vercel.app/api/v1/voter/delete-All-Voters`,
+        {
+          method: "DELETE",
+          headers: {
+            "Content-Type": "application/json",
+            "x-access-token": token,
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
       const res = await response.json();
       if (response.ok) {
         console.log("Voters deleted successfully", res);
