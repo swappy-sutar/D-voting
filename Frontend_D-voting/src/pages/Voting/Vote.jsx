@@ -5,7 +5,7 @@ import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { useNavigate } from "react-router-dom";
 
-const apiurl = import.meta.env.VITE_WEB_URL;
+const apiurl = import.meta.env.backend_URL;
 
 function Vote() {
   const { web3State } = useWeb3Context();

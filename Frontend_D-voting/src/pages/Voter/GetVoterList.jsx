@@ -6,7 +6,7 @@ import { useNavigate } from "react-router-dom";
 import { Log } from "ethers";
 import Layout from "../../Components/Layout";
 
-const apiurl = import.meta.env.VITE_WEB_URL;
+const apiurl = import.meta.env.backend_URL;
 
 function GetVoter() {
   const { web3State } = useWeb3Context();

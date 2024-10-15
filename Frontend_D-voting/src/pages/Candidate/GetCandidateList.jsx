@@ -4,7 +4,7 @@ import { toast } from "react-toastify";
 import { useNavigate } from "react-router-dom";
 import Layout from "../../Components/Layout";
 
-const apiurl = import.meta.env.VITE_WEB_URL;
+const apiurl = import.meta.env.backend_URL;
 
 function GetCandidate() {
   const { web3State } = useWeb3Context();

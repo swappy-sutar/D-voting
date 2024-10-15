@@ -1,5 +1,5 @@
 import axios from "axios";
-const apiurl = import.meta.env.VITE_WEB_URL;
+const apiurl = import.meta.env.backend_URL;
 
 const UploadImage = async (file, storagePath) => {
   try {
