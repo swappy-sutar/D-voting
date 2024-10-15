@@ -81,7 +81,7 @@ function GetVoter() {
 
         if (res.status) {
           const images = res.data.map((voter) => ({
-            imageUrl: `${apiurl}/D-voting/voterImages/${voter.imageName}`,
+            imageUrl: `d-voting-swappy.vercel.app/D-voting/voterImages/${voter.imageName}`,
             accountAddress: voter.accountAddress,
           }));
           console.log("images", images);
