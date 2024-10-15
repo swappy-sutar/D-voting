@@ -18,22 +18,26 @@ const corsOptions = {
   credentials: true,
 };
 
+
 app.use(cors(corsOptions));
+
 
 app.use(express.json());
 
 app.use("/D-voting", express.static(path.join(__dirname, "D-voting")));
 
-// Define routes
+app.use("/", (req, res) => {
+  res.send("Welcome to D-Voting Backend");
+});
+
+
 import { router as candidate } from "./routes/candidate.Routes.js";
 import { router as voter } from "./routes/voter.routes.js";
 import { router as Authentication } from "./routes/auth.routes.js";
-import { home } from "./controllers/home.controller.js";
 
-app.options("*", cors()); 
+app.options("*", cors());
 
-// Use routes
-app.use("/",home);
+
 app.use("/api/v1/auth", Authentication);
 app.use("/api/v1/candidate", auth, candidate);
 app.use("/api/v1/voter", auth, voter);
