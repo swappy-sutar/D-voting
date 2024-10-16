@@ -44,7 +44,15 @@ function RegisterVoter() {
 
       // Get form values
       const file = fileRef.current.files[0];
-      let imageUrl = "";
+      let imageUrl= "";
+
+       if (file) {
+         imageUrl = await UploadImage(file, "voter/voter-image");
+       }
+
+       if (imageUrl == "") {
+         toast.error("Failed to upload image");
+       }
 
       const name = nameRef.current.value;
       const age = parseInt(ageRef.current.value, 10);
@@ -64,9 +72,7 @@ function RegisterVoter() {
       const receipt = await transaction.wait();
 
       if (receipt.status === 1) {
-        if (file) {
-          imageUrl = await UploadImage(file, "voter/voter-image");
-        }
+       
 
         toast.success("Voter registered successfully!");
       } else {
