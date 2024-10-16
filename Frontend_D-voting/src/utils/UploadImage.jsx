@@ -1,4 +1,3 @@
-import axios from "axios";
 const apiurl = import.meta.env.backend_URL;
 
 const UploadImage = async (file, storagePath) => {
@@ -8,20 +7,24 @@ const UploadImage = async (file, storagePath) => {
 
     const token = localStorage.getItem("token");
 
-    const config = {
-      headers: {
-        "x-access-token": token,
-        "Content-Type": "multipart/form-data",
-      },
-    };
-
-    const res = await axios.post(
+    const response = await fetch(
       `https://d-voting-backend.vercel.app/api/v1/${storagePath}`,
-      formData,
-      config
+      {
+        method: "POST",
+        headers: {
+          "x-access-token": token,
+          "Content-Type": "multipart/form-data",
+        },
+        body: formData,
+      }
     );
 
-    return res.data.imageUrl;
+    if (!response.ok) {
+      throw new Error(`Error: ${response.statusText}`);
+    }
+
+    const data = await response.json();
+    return data.imageUrl;
   } catch (error) {
     console.error("Error occurred during image upload:", error);
     throw error;
