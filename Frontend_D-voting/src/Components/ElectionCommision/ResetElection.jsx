@@ -89,7 +89,7 @@ function ResetElection() {
   const deleteAllDataOfCandidates = async () => {
     try {
       const response = await fetch(
-        `${apiurl}/api/v1/candidate/delete-All-Candidates`,
+        `https://d-voting-backend.vercel.app/api/v1/candidate/delete-All-Candidates`,
         {
           method: "DELETE",
           headers: {
@@ -126,4 +126,4 @@ function ResetElection() {
   );
 }
 
-export default ResetElection; // Removed the duplicate export statement
+export default ResetElection; 
