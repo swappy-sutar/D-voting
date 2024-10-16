@@ -5,6 +5,12 @@ const voterImage = async (req, res) => {
     const accountAddress = req.accountAddress;
     const imageName = req.file.filename;
 
+    console.log("voterImage data",{
+      accountAddress,
+      imageName
+    });
+    
+
     if (!accountAddress || !imageName) {
       return res.status(400).json({
         status: false,
