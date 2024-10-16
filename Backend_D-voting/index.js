@@ -4,10 +4,6 @@ import { app } from "./app.js";
 
 dotenv.config();
 
-app.use("/",(req,res)=>{
-  res.send("Welcome to D-voting Backend");
-
-})
 
 connection_DB()
   .then(() => {

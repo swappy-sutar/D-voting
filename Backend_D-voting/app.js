@@ -11,10 +11,9 @@ const __dirname = path.dirname(__filename);
 
 const corsOptions = {
   origin: [
-    "https://d-voting-v1.vercel.app",
-    "https://d-voting-omdk.vercel.app",
+    "https://d-voting-swappy.vercel.app"
   ],
-  methods: ["POST", "GET", "DELETE", "OPTIONS"], 
+  methods: ["POST", "GET", "DELETE", "OPTIONS"],
   credentials: true,
 };
 
