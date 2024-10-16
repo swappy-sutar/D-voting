@@ -14,7 +14,7 @@ const corsOptions = {
     "https://d-voting-v1.vercel.app",
     "https://d-voting-omdk.vercel.app",
   ],
-  methods: ["POST", "GET", "DELETE", "OPTIONS"],
+  methods: ["POST", "GET", "DELETE", "OPTIONS"], 
   credentials: true,
 };
 
@@ -25,10 +25,6 @@ app.use(cors(corsOptions));
 app.use(express.json());
 
 app.use("/D-voting", express.static(path.join(__dirname, "D-voting")));
-
-app.use("/", (req, res) => {
-  res.send("Welcome to D-Voting Backend");
-});
 
 
 import { router as candidate } from "./routes/candidate.Routes.js";
