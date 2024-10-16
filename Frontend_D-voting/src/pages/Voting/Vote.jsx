@@ -69,7 +69,7 @@ function Vote() {
     const fetchImages = async () => {
       try {
         const response = await fetch(
-          `https://d-voting-swappy.vercel.app/api/v1/candidate/get-candidate-list`,
+          `https://d-voting-backend.vercel.app/api/v1/candidate/get-candidate-list`,
           {
             headers: {
               "Content-Type": "application/json",

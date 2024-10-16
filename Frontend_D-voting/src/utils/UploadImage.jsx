@@ -16,7 +16,7 @@ const UploadImage = async (file, storagePath) => {
     };
 
     const res = await axios.post(
-      `https://d-voting-swappy.vercel.app/api/v1/${storagePath}`,
+      `https://d-voting-backend.vercel.app/api/v1/${storagePath}`,
       formData,
       config
     );
