@@ -1,4 +1,4 @@
-import { useRef, useState,useEffect } from "react";
+import { useRef, useState, useEffect } from "react";
 import { useWeb3Context } from "../../context/UseWeb3Context";
 import { UploadImage } from "../../utils/UploadImage";
 import Layout from "../../Components/Layout";
@@ -45,11 +45,6 @@ function RegisterVoter() {
       // Get form values
       const file = fileRef.current.files[0];
       let imageUrl = "";
-       if (file) {
-         imageUrl = await UploadImage(file, "voter/voter-image");
-       }
-
-   
 
       const name = nameRef.current.value;
       const age = parseInt(ageRef.current.value, 10);
@@ -68,9 +63,10 @@ function RegisterVoter() {
 
       const receipt = await transaction.wait();
 
-         
       if (receipt.status === 1) {
-       
+        if (file) {
+          imageUrl = await UploadImage(file, "voter/voter-image");
+        }
 
         toast.success("Voter registered successfully!");
       } else {
