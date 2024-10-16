@@ -30,28 +30,20 @@ const GetWeb3State = async () => {
     const provider = new ethers.BrowserProvider(window.ethereum);
     const signer = await provider.getSigner();
 
-    const contractAddress = "0xB32Ed632A2d02AfC6d5493a5F19983f01ea07C09"; //contractV2.sol deploy on polygon amoy testnet
+    const contractAddress = "0xB32Ed632A2d02AfC6d5493a5F19983f01ea07C09"; 
 
     const message =
       "Welcome to Voting Dapp. You accept our terms and conditions";
     const signature = await signer.signMessage(message);
     const dataSignature = { signature };
 
-    console.log("Requesting authentication with:", {
-      accountAddress: selectedAccount,
-      signature: dataSignature.signature,
-    });
-console.log("ewww");
-
     const res = await axios.post(
-      `https://d-voting-backend.vercel.app/api/v1/auth/authentication?accountAddress=${selectedAccount}`,
+      `https://d-voting-swappy.vercel.app/api/v1/auth/authentication?accountAddress=${selectedAccount}`,
       dataSignature
     );
-    console.log("res",res);
+   
     localStorage.setItem("token", res.data.token);
-    console.log("after set item");
-    
-
+  
     let contractInstance;
 
     try {
@@ -70,11 +62,6 @@ console.log("ewww");
       toast.error("Contract instance not found");
       console.error("Contract instance not found");
     } else {
-      
-      console.log(
-        "Contract instance is successfully created:",
-        contractInstance
-      );
 
       return { contractInstance, selectedAccount, chainId, signer, provider };
     }
