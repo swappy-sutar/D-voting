@@ -16,7 +16,7 @@ function Login() {
       const password = passwordRef.current.value;
 
       const response = await fetch(
-        "https://d-voting-backend.vercel.app/api/v1/electoion-Commission/login",
+        "https://d-voting-backend.vercel.app/api/v1/election-commission/login",
         {
           method: "POST",
           headers: {
