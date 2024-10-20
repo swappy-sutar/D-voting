@@ -26,7 +26,6 @@ function TransferETH() {
     const amountInWei = parseEther(amount);
 
     const contractBalance = await contractInstance.electionCommissionBalance();
-    console.log("contractBalance", contractBalance);
 
     if (contractBalance <= amountInWei) {
       toast.error("Insufficient balance, Please check contract balance!");
