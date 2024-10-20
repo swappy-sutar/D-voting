@@ -8,6 +8,13 @@ function Login() {
   const usernameRef = useRef(null);
   const passwordRef = useRef(null);
   const navigateTo = useNavigate();
+  const token = localStorage.getItem("token");
+
+  useEffect(() => {
+    if (!token) {
+      navigateTo("/");
+    }
+  }, [navigateTo, token]);
 
   const handleLogin = async (e) => {
     e.preventDefault();
@@ -21,6 +28,8 @@ function Login() {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
+            "x-access-token": token,
+            Authorization: `Bearer ${token}`,
           },
           body: JSON.stringify({ username, password }),
         }
