@@ -10,6 +10,8 @@ import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { useNavigate } from "react-router-dom";
 import TransferETH from "../../Components/ElectionCommision/TransferETH";
+import TransferOwnerShip from "../../Components/ElectionCommision/TransferOwnerShip";
+
 
 function ElectionCommision() {
   const { web3State } = useWeb3Context();
@@ -82,6 +84,9 @@ function ElectionCommision() {
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 lg:gap-8">
             <div className="flex flex-col">
               <VotingTimePeriod />
+              <div className="mt-4">
+                <TransferOwnerShip />
+              </div>
               <div className="mt-4">
                 <TransferETH />
               </div>
