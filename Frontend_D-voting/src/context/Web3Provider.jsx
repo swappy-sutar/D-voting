@@ -39,9 +39,15 @@ const Web3Provider = ({ children }) => {
   };
 
   useEffect(() => {
-    const userAgent = navigator.userAgent || navigator.vendor || window.opera;
-    // Check if the user is on a mobile device
-    setIsMobile(/android|iPad|iPhone|iPod/.test(userAgent) && !window.MSStream);
+    const checkDevice = () => {
+      const userAgent = navigator.userAgent || navigator.vendor || window.opera;
+      // Check if the user is on a mobile device
+      const isMobileDevice =
+        /android|iPad|iPhone|iPod/i.test(userAgent) && !window.MSStream;
+      setIsMobile(isMobileDevice);
+    };
+
+    checkDevice();
 
     if (typeof window.ethereum === "undefined") {
       setHasMetaMask(false);
@@ -70,10 +76,7 @@ const Web3Provider = ({ children }) => {
       <Layout>
         <div className="relative flex flex-col items-center justify-center h-screen px-4 md:px-8 lg:px-16">
           <div className="relative z-10 flex flex-col items-center text-center animate-fadeIn">
-            <motion.h1
-              className="text-white bg-black text-xl md:text-6xl p-6 rounded-lg font-bold mb-10 drop-shadow-lg"
-             
-            >
+            <motion.h1 className="text-white bg-black text-xl md:text-6xl p-6 rounded-lg font-bold mb-10 drop-shadow-lg">
               MetaMask Not Detected
               <motion.p
                 className="text-white text-lg md:text-lg m-5"
@@ -86,7 +89,6 @@ const Web3Provider = ({ children }) => {
             </motion.h1>
 
             {isMobile ? (
-              
               <>
                 <motion.button
                   onClick={() => {
@@ -101,12 +103,11 @@ const Web3Provider = ({ children }) => {
                 </motion.button>
               </>
             ) : (
-              // For laptop users, show the install option for Chrome extension
               <>
                 <motion.button
                   onClick={() => {
                     window.open(
-                      "https://chrome.google.com/webstore/detail/metamask/nckgahadagohaagdgbonnnilgkkmcgdg",
+                      "https://chrome.google.com/webstore/detail/metamask/nkbihfbeogaeaoehlefnkodbefgpgknn",
                       "_blank"
                     );
                   }}
