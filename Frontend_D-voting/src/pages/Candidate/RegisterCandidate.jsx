@@ -1,18 +1,24 @@
 import React, { useRef, useState, useEffect } from "react";
 import { useWeb3Context } from "../../context/UseWeb3Context";
-import { UploadImage } from "../../utils/UploadImage";
 import Layout from "../../Components/Layout";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { useNavigate } from "react-router-dom";
-import { ethers } from "ethers";
+import {
+  getStorage,
+  ref,
+  uploadBytesResumable,
+  getDownloadURL,
+} from "firebase/storage"; // Firebase storage imports
+import { ethers } from "ethers"; // For handling ether conversions
 
 function RegisterCandidate() {
   const { web3State } = useWeb3Context();
   const { contractInstance, selectedAccount } = web3State;
   const [loading, setLoading] = useState(false);
-  const navigateTo = useNavigate();
+  const [imageUrl, setImageUrl] = useState("");
 
+  const navigateTo = useNavigate();
   const token = localStorage.getItem("token");
 
   useEffect(() => {
@@ -40,9 +46,6 @@ function RegisterCandidate() {
     setLoading(true);
 
     try {
-      const file = fileRef.current.files[0];
-      let imageUrl = "";
-
       const name = nameRef.current.value;
       const age = parseInt(ageRef.current.value, 10);
       const genderValue = parseInt(genderRef.current.value, 10);
@@ -75,21 +78,36 @@ function RegisterCandidate() {
       );
 
       const receipt = await transaction.wait();
+
       if (receipt.status === 1) {
         toast.success("Candidate registered successfully!");
-        if (file) {
-          imageUrl = await UploadImage(file, "candidate/candidate-image");
-        }
+
+        const uploadedUrl = await handleFileUpload();
+
+        const candidateData = {
+          accountAddress: selectedAccount,
+          imageUrl: uploadedUrl,
+        };
+
+
+        await fetch("http://localhost:8000/api/v1/candidate/candidate-image", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            "x-access-token": `${token}`,
+          },
+          body: JSON.stringify(candidateData),
+        });
+
+        nameRef.current.value = "";
+        ageRef.current.value = "";
+        genderRef.current.value = "";
+        partyRef.current.value = "";
+        depositRef.current.value = "";
+        fileRef.current.value = "";
       } else {
         toast.error("Failed to register candidate");
       }
-
-      nameRef.current.value = "";
-      ageRef.current.value = "";
-      genderRef.current.value = "";
-      partyRef.current.value = "";
-      depositRef.current.value = "";
-      fileRef.current.value = "";
     } catch (error) {
       console.error("Error during candidate registration:", error.message);
       toast.error(`Error during registration: ${error.message}`);
@@ -98,10 +116,47 @@ function RegisterCandidate() {
     }
   };
 
+  const handleFileUpload = async () => {
+    const file = fileRef.current.files[0];
+    if (!file) return null;
+
+    try {
+      const storage = getStorage();
+      const storageRef = ref(storage, `candidate-images/${selectedAccount}`);
+      const uploadTask = uploadBytesResumable(storageRef, file);
+
+      return new Promise((resolve, reject) => {
+        uploadTask.on(
+          "state_changed",
+          (snapshot) => {
+            const progress =
+              (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
+            console.log(`Upload is ${progress}% done`);
+          },
+          (error) => {
+            toast.error(`Upload failed: ${error.message}`);
+            reject(error);
+          },
+          async () => {
+            const downloadUrl = await getDownloadURL(uploadTask.snapshot.ref);
+            setImageUrl(downloadUrl);
+            console.log("downloadUrl", downloadUrl);
+            
+            resolve(downloadUrl);
+          }
+        );
+      });
+    } catch (error) {
+      console.error("File upload error:", error.message || error);
+      toast.error("Failed to upload image.");
+      return null;
+    }
+  };
+
   return (
     <Layout>
       <ToastContainer />
-      <div className="flex items-center my-14 mx-2 justify-center ">
+      <div className="flex items-center my-14 mx-2 justify-center">
         <form
           onSubmit={handleCandidateRegistration}
           className="w-full max-w-lg bg-white p-8 rounded-lg shadow-lg space-y-4 md:max-w-md border"
@@ -113,14 +168,13 @@ function RegisterCandidate() {
             <strong>Note:</strong> Deposit amount should be "0.001" ETH/MATIC
           </div>
 
-          {/* Form Fields */}
           <div>
             <label className="block text-gray-700 font-semibold">Name:</label>
             <input
               type="text"
               ref={nameRef}
-              className="mt-1 w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-              placeholder="Enter candidate's name"
+              className="mt-1 w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              placeholder="Enter your name"
               required
             />
           </div>
@@ -130,10 +184,9 @@ function RegisterCandidate() {
             <input
               type="number"
               ref={ageRef}
-              className="mt-1 w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-              placeholder="Enter candidate's age"
+              className="mt-1 w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              placeholder="Enter your age"
               required
-              min="1"
             />
           </div>
 
@@ -141,7 +194,7 @@ function RegisterCandidate() {
             <label className="block text-gray-700 font-semibold">Gender:</label>
             <select
               ref={genderRef}
-              className="mt-1 w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="mt-1 w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
               defaultValue=""
               required
             >
@@ -160,8 +213,8 @@ function RegisterCandidate() {
             <input
               type="text"
               ref={partyRef}
-              className="mt-1 w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-              placeholder="Enter candidate's party"
+              className="mt-1 w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              placeholder="Enter your party"
               required
             />
           </div>
@@ -173,11 +226,12 @@ function RegisterCandidate() {
             <input
               type="text"
               ref={depositRef}
-              className="mt-1 w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-              placeholder="Deposit 0.001 ETH/MATIC"
+              className="mt-1 w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              placeholder="Enter deposit amount in ETH"
               required
             />
           </div>
+
           <div>
             <label className="block text-gray-700 font-semibold">
               Upload Image:
@@ -194,9 +248,7 @@ function RegisterCandidate() {
             disabled={loading}
             className={`w-full py-3 mt-4 ${
               loading ? "bg-gray-400" : "bg-blue-600"
-            } text-white hover:${
-              loading ? "text-gray-800" : "hover:text-gray-800"
-            } font-semibold rounded-md transition duration-300 flex items-center justify-center bg-gradient-to-r from-blue-500 to-indigo-500`}
+            } text-white font-semibold rounded-md transition duration-300 flex items-center justify-center bg-gradient-to-r from-blue-500 to-indigo-500`}
           >
             {loading ? (
               <>
@@ -226,7 +278,6 @@ function RegisterCandidate() {
               "Register"
             )}
           </button>
-
           <p
             onClick={() => navigateTo("/register-voter")}
             className="mt-4 text-center"

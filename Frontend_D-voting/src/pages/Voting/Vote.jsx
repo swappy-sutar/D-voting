@@ -41,7 +41,9 @@ function Vote() {
 
         const candidateAddresses = await contractInstance.getCandidateList();
         if (candidateAddresses.length === 0) {
-          toast.error("No candidates available");
+          if (!error) {
+            toast.error("No candidates available");
+          }
           return;
         }
 
@@ -58,7 +60,7 @@ function Vote() {
           })
         );
         setCandidateList(candidateDetails);
-        toast.success("Candidate list fetched successfully!");
+        toast.success("Candidates fetched successfully!");
       } catch (error) {
         setError("Failed to fetch candidate list.");
         toast.error("Failed to fetch candidate list.");
@@ -69,26 +71,30 @@ function Vote() {
     const fetchImages = async () => {
       try {
         const response = await fetch(
-          `https://d-voting-backend.vercel.app/api/v1/candidate/get-candidate-list`,
+          `http://localhost:8000/api/v1/candidate/get-candidate-list`,
           {
             headers: {
               "Content-Type": "application/json",
+              "x-access-token": token,
               Authorization: `Bearer ${token}`,
             },
           }
         );
         const res = await response.json();
+
         if (res.status) {
           const images = res.data.map((candidate) => ({
-            imageUrl: `${apiurl}/D-voting/candidateImages/${candidate.imageName}`,
+            imageUrl: candidate.imageUrl,
             accountAddress: candidate.accountAddress,
           }));
           setCandidateImages(images);
         } else {
           setError(res.message);
+          toast.error(res.message);
         }
       } catch (error) {
         setError("Failed to fetch candidate images.");
+        toast.error("Failed to fetch candidate images.");
       }
     };
 
@@ -108,7 +114,7 @@ function Vote() {
       fetchVotingStatus();
       fetchImages();
     }
-  }, [contractInstance, token]);
+  }, [contractInstance, token, error]);
 
   const getCandidateImage = (candidateAddress) => {
     const candidateImage = candidateImages.find(
@@ -136,15 +142,12 @@ function Vote() {
       const receipt = await transaction.wait();
 
       if (receipt.status === 1) {
-        toast.success("Vote Submitted successfully!");
+        toast.success(`Voted successfully for ${candidate.name}!`);
       } else {
-        toast.error("Transaction failed.");
+        toast.error("Voting failed.");
       }
     } catch (error) {
-      const currentVotingStatus = await contractInstance.getVotingStatus();
-      const statusString =
-        votingStatusMap[currentVotingStatus.toString()] || "Unknown Status";
-      toast.error(`Status: Voting is ${statusString}`);
+      toast.error("Error during voting.");
     } finally {
       setVotingLoading((prev) => ({ ...prev, [candidate.address]: false }));
     }
@@ -152,7 +155,6 @@ function Vote() {
 
   return (
     <Layout>
-      <ToastContainer />
       <div className="flex flex-col items-center justify-center min-h-screen p-4">
         <div className="w-full max-w-4xl bg-white rounded-lg shadow-lg p-6">
           <h2 className="text-3xl font-extrabold text-gray-900 mb-5 text-center">
@@ -167,23 +169,24 @@ function Vote() {
           ) : error ? (
             <p className="text-center text-red-600">{error}</p>
           ) : (
-            <div>
-              <table className="min-w-full divide-y divide-gray-200">
+            <div className="overflow-x-auto">
+              <table className="min-w-full table-auto divide-y divide-gray-300">
                 <thead className="bg-gray-200">
                   <tr>
-                    <th className="px-10 py-3 text-left text-xs font-medium text-gray-700 uppercase tracking-wider">
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-700 uppercase tracking-wider">
                       ID
                     </th>
-                    <th className="px-10 py-3 text-left text-xs font-medium text-gray-700 uppercase tracking-wider">
-                      Candidate
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-700 uppercase tracking-wider">
+                      Name
                     </th>
-                    <th className="px-10 py-3 text-left text-xs font-medium text-gray-700 uppercase tracking-wider">
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-700 uppercase tracking-wider">
                       Party
                     </th>
-                    <th className="px-10 py-3 text-left text-xs font-medium text-gray-700 uppercase tracking-wider">
-                      Image
+                    
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-700 uppercase tracking-wider">
+                      Photo
                     </th>
-                    <th className="px-10 py-3 text-left text-xs font-medium text-gray-700 uppercase tracking-wider">
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-700 uppercase tracking-wider">
                       Vote
                     </th>
                   </tr>
@@ -192,7 +195,7 @@ function Vote() {
                   {candidateList.length === 0 ? (
                     <tr>
                       <td
-                        colSpan="5"
+                        colSpan="6"
                         className="px-6 py-4 text-center text-gray-600"
                       >
                         No candidates found.
@@ -200,60 +203,32 @@ function Vote() {
                     </tr>
                   ) : (
                     candidateList.map((candidate, index) => (
-                      <tr
-                        key={index}
-                        className="hover:bg-gray-100 transition-colors duration-300"
-                      >
-                        <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
+                      <tr key={candidate.address}>
+                        <td className="px-6 py-4 text-sm font-bold text-gray-900">
                           {index + 1}
                         </td>
-                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                        <td className="px-6 py-4 text-sm  text-gray-500">
                           {candidate.name}
                         </td>
-                        <td className="px-6 py-4 whitespace-nowrap font-bold text-sm text-gray-500">
+                        <td className="px-6 py-4 text-sm font-bold text-black">
                           {candidate.party}
                         </td>
-                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                        <td className="px-6 py-4 text-sm text-gray-500">
                           {getCandidateImage(candidate.address)}
                         </td>
-                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                        <td className="px-6 py-4">
                           <button
-                            type="button"
-                            disabled={votingLoading[candidate.address]}
-                            className={`w-32 py-3 ${
-                              votingLoading[candidate.address]
-                                ? "bg-gray-400"
-                                : "bg-blue-600"
-                            } text-white font-semibold rounded-md transition duration-300 flex items-center justify-center`}
                             onClick={() => vote(candidate)}
+                            className={`px-4 py-2 text-white font-semibold rounded-lg shadow-md ${
+                              votingLoading[candidate.address]
+                                ? "bg-gray-400 cursor-not-allowed"
+                                : "bg-blue-600 hover:bg-blue-500"
+                            }`}
+                            disabled={votingLoading[candidate.address]}
                           >
-                            {votingLoading[candidate.address] ? (
-                              <>
-                                <svg
-                                  className="animate-spin h-5 w-5 mr-2"
-                                  xmlns="http://www.w3.org/2000/svg"
-                                  fill="none"
-                                  viewBox="0 0 24 24"
-                                  stroke="currentColor"
-                                >
-                                  <circle
-                                    className="opacity-25"
-                                    cx="12"
-                                    cy="12"
-                                    r="10"
-                                    strokeWidth="4"
-                                  />
-                                  <path
-                                    className="opacity-75"
-                                    fill="currentColor"
-                                    d="M4 12a8 8 0 018-8v8H4z"
-                                  />
-                                </svg>
-                                Voting...
-                              </>
-                            ) : (
-                              "Vote"
-                            )}
+                            {votingLoading[candidate.address]
+                              ? "Voting..."
+                              : "Vote"}
                           </button>
                         </td>
                       </tr>
@@ -264,6 +239,7 @@ function Vote() {
             </div>
           )}
         </div>
+        <ToastContainer />
       </div>
     </Layout>
   );

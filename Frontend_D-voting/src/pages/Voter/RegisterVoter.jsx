@@ -1,15 +1,16 @@
 import { useRef, useState, useEffect } from "react";
 import { useWeb3Context } from "../../context/UseWeb3Context";
-import { UploadImage } from "../../utils/UploadImage";
-import Layout from "../../Components/Layout";
 import { toast, ToastContainer } from "react-toastify";
 import { useNavigate } from "react-router-dom";
 import "react-toastify/dist/ReactToastify.css";
+import { getStorage, ref, uploadBytesResumable, getDownloadURL } from "firebase/storage"; // Firebase storage imports
+import Layout from "../../Components/Layout";
 
 function RegisterVoter() {
   const { web3State } = useWeb3Context();
   const { contractInstance, selectedAccount } = web3State;
   const [loading, setLoading] = useState(false);
+  const [imageUrl, setImageUrl] = useState("");
   const navigateTo = useNavigate();
   const token = localStorage.getItem("token");
 
@@ -35,31 +36,13 @@ function RegisterVoter() {
     setLoading(true);
 
     try {
-      const token = localStorage.getItem("token");
-      if (!token) {
-        toast.error("User not authenticated.");
-        navigateTo("/");
-        return;
-      }
-
-      // Get form values
-      const file = fileRef.current.files[0];
-      let imageUrl= "";
-
-       if (file) {
-         imageUrl = await UploadImage(file, "voter/voter-image");
-       }
-
-       if (imageUrl == "") {
-         toast.error("Failed to upload image");
-       }
-
       const name = nameRef.current.value;
       const age = parseInt(ageRef.current.value, 10);
       const genderInput = parseInt(genderRef.current.value, 10);
 
       if (age < 18) {
         toast.error("You are underage");
+        setLoading(false);
         return;
       }
 
@@ -72,11 +55,25 @@ function RegisterVoter() {
       const receipt = await transaction.wait();
 
       if (receipt.status === 1) {
-       
-
         toast.success("Voter registered successfully!");
+        const uploadedUrl = await handleFileUpload();
+
+          const voterData = {
+            accountAddress: selectedAccount,
+            imageUrl: uploadedUrl,
+          };
+
+          await fetch("http://localhost:8000/api/v1/voter/voter-image", {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+              "x-access-token": `${token}`,
+            },
+            body: JSON.stringify(voterData),
+          });
+       
       } else {
-        toast.error("Failed to register candidate");
+        toast.error("Failed to register voter");
       }
 
       nameRef.current.value = "";
@@ -84,11 +81,45 @@ function RegisterVoter() {
       genderRef.current.value = "";
       fileRef.current.value = "";
     } catch (error) {
-      console.error("Error during voter registration:", error || error.message);
-
-      toast.error(`Voter already registered`);
+      console.error("Error during voter registration:", error.message || error);
+      toast.error("Voter already registered or an error occurred.");
     } finally {
       setLoading(false);
+    }
+  };
+
+  const handleFileUpload = async () => {
+    const file = fileRef.current.files[0];
+    if (!file) return null;
+
+    try {
+      const storage = getStorage();
+      const storageRef = ref(storage, `voter-images/${selectedAccount}`);
+      const uploadTask = uploadBytesResumable(storageRef, file);
+
+      return new Promise((resolve, reject) => {
+        uploadTask.on(
+          "state_changed",
+          (snapshot) => {
+            const progress =
+              (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
+            console.log(`Upload is ${progress}% done`);
+          },
+          (error) => {
+            toast.error(`Upload failed: ${error.message}`);
+            reject(error);
+          },
+          async () => {
+            const downloadUrl = await getDownloadURL(uploadTask.snapshot.ref);
+            setImageUrl(downloadUrl);
+            resolve(downloadUrl);
+          }
+        );
+      });
+    } catch (error) {
+      console.error("File upload error:", error.message || error);
+      toast.error("Failed to upload image.");
+      return null;
     }
   };
 
@@ -160,7 +191,7 @@ function RegisterVoter() {
             disabled={loading}
             className={`w-full py-3 mt-4 ${
               loading ? "bg-gray-400" : "bg-blue-600"
-            } text-white  hover:text-gray-800  font-semibold rounded-md transition duration-300 flex items-center justify-center bg-gradient-to-r from-blue-500 to-indigo-500`}
+            } text-white font-semibold rounded-md transition duration-300 flex items-center justify-center bg-gradient-to-r from-blue-500 to-indigo-500`}
           >
             {loading ? (
               <>
@@ -192,7 +223,7 @@ function RegisterVoter() {
           </button>
           <p
             onClick={() => navigateTo("/register-candidate")}
-            className=" mt-4 text-center"
+            className="mt-4 text-center"
           >
             Are you a candidate?{" "}
             <span className="text-blue-500 hover:underline cursor-pointer mt-4 text-center">

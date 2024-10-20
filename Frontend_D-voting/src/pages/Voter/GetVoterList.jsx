@@ -3,10 +3,7 @@ import { useWeb3Context } from "../../context/UseWeb3Context";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { useNavigate } from "react-router-dom";
-import { Log } from "ethers";
 import Layout from "../../Components/Layout";
-
-const apiurl = import.meta.env.backend_URL;
 
 function GetVoter() {
   const { web3State } = useWeb3Context();
@@ -15,94 +12,86 @@ function GetVoter() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [voterImages, setVoterImages] = useState([]);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [votersPerPage] = useState(5); 
   const navigateTo = useNavigate();
 
-   const token = localStorage.getItem("token");
-   console.log("token", token);
-   
- 
+  const token = localStorage.getItem("token");
+
   useEffect(() => {
     if (!token) {
       navigateTo("/");
     }
   }, [navigateTo, token]);
 
-  useEffect(() => {
-   
+ useEffect(() => {
+   const fetchList = async () => {
+     try {
+       if (!contractInstance) return;
 
-    const fetchList = async () => {
-      try {
-        if (!contractInstance) return;
+       const voterAddresses = await contractInstance.getVoterList();
+       if (voterAddresses.length === 0) {
+         toast.error("No Voters Available");
+         return;
+       }
 
-        const voterAddresses = await contractInstance.getVoterList();
-        console.log("voterAddresses", voterAddresses);
-        
+       const voterDetails = await Promise.all(
+         voterAddresses.map(async (address) => {
+           const voter = await contractInstance.getVoter(address);
+           return {
+             address,
+             name: voter[0],
+             age: Number(voter[1]),
+             gender: Number(voter[2]),
+           };
+         })
+       );
+       setVoterList(voterDetails);
+     } catch (error) {
+       console.error(error);
+       setError("Failed to fetch voter list.");
+       toast.error("Failed to fetch voter list.");
+     }
+   };
 
-        if (voterAddresses.length === 0) {
-          toast.error("No Candidates Available");
-          return;
-        }
+   const fetchImages = async () => {
+     try {
+       const response = await fetch(
+         `http://localhost:8000/api/v1/voter/get-voter-list`,
+         {
+           headers: {
+             "Content-Type": "application/json",
+             "x-access-token": token,
+             Authorization: `Bearer ${token}`,
+           },
+         }
+       );
+       const res = await response.json();
 
-        const voterDetails = await Promise.all( 
-          voterAddresses.map(async (address) => {
-            const voter = await contractInstance.getVoter(address);
-            return {
-              address,
-              name: voter[0],
-              age: Number(voter[1]),
-              gender: Number(voter[2]),
-            };
-          })
-        );
-        console.log("voterDetails", voterDetails);
-        setVoterList(voterDetails);
-        toast.success("Voter list fetched successfully!");
-      } catch (error) {
-        console.error(error);
-        setError("Failed to fetch voter list.");
-        toast.error("Failed to fetch voter list.");
-      }
-    };
+       if (res.status) {
+         const images = res.data.map((voter) => ({
+           imageUrl: voter.imageUrl,
+           accountAddress: voter.accountAddress,
+         }));
+         setVoterImages(images);
+       } else {
+         setError(res.message);
+       }
+     } catch (error) {
+       setError("Failed to fetch voter images.");
+     }
+   };
 
-    const fetchImages = async () => {
-      try {
-        const response = await fetch(
-          `https://d-voting-backend.vercel.app/api/v1/voter/get-voter-list`,
-          {
-            headers: {
-              "Content-Type": "application/json",
-              "x-access-token": token,
-              Authorization: `Bearer ${token}`,
-            },
-          }
-        );
-        const res = await response.json();
-        console.log("res", res);
+   const fetchAllData = async () => {
+     setLoading(true);
+     await Promise.all([fetchList(), fetchImages()]);
+     setLoading(false);
+     toast.success("Voter fetched successfully!");
+   };
 
-        if (res.status) {
-          const images = res.data.map((voter) => ({
-            imageUrl: `d-voting-swappy.vercel.app/D-voting/voterImages/${voter.imageName}`,
-            accountAddress: voter.accountAddress,
-          }));
-          console.log("images", images);
-          
-          setVoterImages(images);
-        } else {
-          setError(res.message);
-        }
-      } catch (error) {
-        setError("Failed to fetch voter images.");
-      }
-    };
+   fetchAllData();
+ }, [contractInstance, token]);
 
-    const fetchAllData = async () => {
-      setLoading(true);
-      await Promise.all([fetchList(), fetchImages()]);
-      setLoading(false);
-    };
-
-    fetchAllData();
-  }, [contractInstance, navigateTo]);
 
   const getVoterImage = (voterAddress) => {
     const voterImage = voterImages.find(
@@ -111,32 +100,46 @@ function GetVoter() {
     );
     return voterImage ? (
       <img
-        height="70px"
-        width="70px"
         src={voterImage.imageUrl}
         alt="voter"
-        className="rounded-full"
+        className="w-16 h-16 rounded-full object-cover shadow-2xl"
       />
     ) : (
       <span>No Image</span>
     );
   };
 
+
+  const indexOfLastVoter = currentPage * votersPerPage; 
+  const indexOfFirstVoter = indexOfLastVoter - votersPerPage; 
+  const currentVoters = voterList.slice(indexOfFirstVoter, indexOfLastVoter);
+  const totalPages = Math.ceil(voterList.length / votersPerPage); 
+
+  const handleNextPage = () => {
+    if (currentPage < totalPages) {
+      setCurrentPage((prevPage) => prevPage + 1);
+    }
+  };
+
+  const handlePrevPage = () => {
+    if (currentPage > 1) {
+      setCurrentPage((prevPage) => prevPage - 1);
+    }
+  };
+
   return (
     <Layout>
-      <div className="flex flex-col items-center justify-center min-h-screen p-4">
+      <div className="flex flex-col items-center justify-center min-h-screen p-6">
         <ToastContainer />
-        <div className="w-full max-w-5xl bg-white rounded-lg shadow-lg p-6">
-          <h2 className="text-3xl font-extrabold text-gray-900 mb-8 text-center">
+        <div className="w-full max-w-5xl bg-white rounded-lg shadow-lg p-8">
+          <h2 className="text-3xl font-extrabold text-gray-900 mb-10 text-center">
             Voter List
           </h2>
 
           {loading ? (
             <p className="text-center text-gray-600">Loading...</p>
-          ) : error ? (
-            <p className="text-center text-red-600">{error}</p>
           ) : (
-            <div className="">
+            <div className="overflow-x-auto">
               <table className="min-w-full divide-y divide-gray-200">
                 <thead className="bg-gray-200">
                   <tr>
@@ -156,12 +159,12 @@ function GetVoter() {
                       Gender
                     </th>
                     <th className="px-6 py-3 text-left text-xs font-medium text-gray-700 uppercase tracking-wider">
-                      photo
+                      Photo
                     </th>
                   </tr>
                 </thead>
                 <tbody className="bg-white divide-y divide-gray-200">
-                  {voterList.length === 0 ? (
+                  {currentVoters.length === 0 ? (
                     <tr>
                       <td
                         colSpan="6"
@@ -171,24 +174,25 @@ function GetVoter() {
                       </td>
                     </tr>
                   ) : (
-                    voterList.map((voter, index) => (
+                    currentVoters.map((voter, index) => (
                       <tr
                         key={index}
                         className="hover:bg-gray-100 transition-colors duration-300"
                       >
-                        <td className="px-6 py-6 whitespace-nowrap text-sm font-medium text-gray-900">
-                          {index + 1}
+                        <td className="px-5 py-4 text-sm font-medium text-gray-900 h-20">
+                          {indexOfFirstVoter + index + 1}{" "}
+                          {/* Correct ID display */}
                         </td>
-                        <td className="px-6 py-6 whitespace-nowrap text-sm text-gray-500">
+                        <td className="px-5 py-4 text-sm text-gray-500 h-20">
                           {voter.name}
                         </td>
-                        <td className="px-6 py-6 whitespace-nowrap text-sm text-gray-500">
+                        <td className="px-5 py-4 text-sm text-gray-500 h-20">
                           {voter.address}
                         </td>
-                        <td className="px-6 py-6 whitespace-nowrap text-sm text-gray-500">
+                        <td className="px-5 py-4 text-sm text-gray-500 h-20">
                           {voter.age}
                         </td>
-                        <td className="px-6 py-6 whitespace-nowrap text-sm text-gray-500">
+                        <td className="px-5 py-4 text-sm text-gray-500 h-20">
                           {voter.gender === 1
                             ? "Male"
                             : voter.gender === 2
@@ -197,7 +201,7 @@ function GetVoter() {
                             ? "Other"
                             : "Not Specified"}
                         </td>
-                        <td className="px-6 py-6 whitespace-nowrap text-sm text-gray-500">
+                        <td className="px-6 py-4 text-sm text-gray-500 h-20 flex items-center">
                           {getVoterImage(voter.address)}
                         </td>
                       </tr>
@@ -207,6 +211,34 @@ function GetVoter() {
               </table>
             </div>
           )}
+
+          <div className="flex justify-between items-center mt-6">
+            <button
+              onClick={handlePrevPage}
+              disabled={currentPage === 1}
+              className={`px-3 py-1 text-white font-semibold bg-blue-600 rounded-lg shadow-md transition duration-300 ease-in-out transform ${
+                currentPage === 1
+                  ? "opacity-50 cursor-not-allowed"
+                  : "hover:bg-blue-500"
+              }`}
+            >
+              Previous
+            </button>
+            <span className="text-lg font-semibold text-gray-700">
+              Page {currentPage} of {totalPages}
+            </span>
+            <button
+              onClick={handleNextPage}
+              disabled={currentPage === totalPages}
+              className={`px-3 py-1 text-white font-semibold bg-blue-600 rounded-lg shadow-md transition duration-300 ease-in-out transform ${
+                currentPage === totalPages
+                  ? "opacity-50 cursor-not-allowed"
+                  : "hover:bg-blue-500"
+              }`}
+            >
+              Next
+            </button>
+          </div>
         </div>
       </div>
     </Layout>
