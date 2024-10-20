@@ -116,42 +116,48 @@ function RegisterCandidate() {
     }
   };
 
-  const handleFileUpload = async () => {
-    const file = fileRef.current.files[0];
-    if (!file) return null;
+ const handleFileUpload = async () => {
+   const file = fileRef.current.files[0];
+   if (!file) {
+     toast.error("Please select an image to upload.");
+     return null;
+   }
 
-    try {
-      const storage = getStorage();
-      const storageRef = ref(storage, `candidate-images/${selectedAccount}`);
-      const uploadTask = uploadBytesResumable(storageRef, file);
+   if (!file.type.startsWith("image/")) {
+     toast.error("Only image files are allowed.");
+     return null;
+   }
 
-      return new Promise((resolve, reject) => {
-        uploadTask.on(
-          "state_changed",
-          (snapshot) => {
-            const progress =
-              (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
-            console.log(`Upload is ${progress}% done`);
-          },
-          (error) => {
-            toast.error(`Upload failed: ${error.message}`);
-            reject(error);
-          },
-          async () => {
-            const downloadUrl = await getDownloadURL(uploadTask.snapshot.ref);
-            setImageUrl(downloadUrl);
-            console.log("downloadUrl", downloadUrl);
-            
-            resolve(downloadUrl);
-          }
-        );
-      });
-    } catch (error) {
-      console.error("File upload error:", error.message || error);
-      toast.error("Failed to upload image.");
-      return null;
-    }
-  };
+   try {
+     const storage = getStorage();
+     const storageRef = ref(storage, `candidate-images/${selectedAccount}`);
+     const uploadTask = uploadBytesResumable(storageRef, file);
+
+     return new Promise((resolve, reject) => {
+       uploadTask.on(
+         "state_changed",
+         (snapshot) => {
+           const progress =
+             (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
+           console.log(`Upload is ${progress}% done`);
+         },
+         (error) => {
+           toast.error(`Upload failed: ${error.message}`);
+           reject(error);
+         },
+         async () => {
+           const downloadUrl = await getDownloadURL(uploadTask.snapshot.ref);
+           setImageUrl(downloadUrl);
+           resolve(downloadUrl);
+         }
+       );
+     });
+   } catch (error) {
+     toast.error("Failed to upload image.");
+     return null;
+   }
+ };
+
 
   return (
     <Layout>

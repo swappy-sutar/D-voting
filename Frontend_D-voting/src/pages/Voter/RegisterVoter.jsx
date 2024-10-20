@@ -3,7 +3,7 @@ import { useWeb3Context } from "../../context/UseWeb3Context";
 import { toast, ToastContainer } from "react-toastify";
 import { useNavigate } from "react-router-dom";
 import "react-toastify/dist/ReactToastify.css";
-import { getStorage, ref, uploadBytesResumable, getDownloadURL } from "firebase/storage"; // Firebase storage imports
+import { getStorage, ref, uploadBytesResumable, getDownloadURL } from "firebase/storage"; 
 import Layout from "../../Components/Layout";
 
 function RegisterVoter() {
@@ -28,7 +28,7 @@ function RegisterVoter() {
   const handleVoterRegistration = async (e) => {
     e.preventDefault();
     if (!contractInstance || !selectedAccount) {
-      toast.error("Please connect wallet and try again later!");
+      toast.error("Please connect your wallet and try again.");
       navigateTo("/");
       return;
     }
@@ -41,7 +41,7 @@ function RegisterVoter() {
       const genderInput = parseInt(genderRef.current.value, 10);
 
       if (age < 18) {
-        toast.error("You are underage");
+        toast.error("You must be at least 18 years old to register.");
         setLoading(false);
         return;
       }
@@ -58,22 +58,25 @@ function RegisterVoter() {
         toast.success("Voter registered successfully!");
         const uploadedUrl = await handleFileUpload();
 
-          const voterData = {
-            accountAddress: selectedAccount,
-            imageUrl: uploadedUrl,
-          };
+        const voterData = {
+          accountAddress: selectedAccount,
+          imageUrl: uploadedUrl,
+        };
 
-          await fetch("https://d-voting-backend.vercel.app/api/v1/voter/voter-image", {
+        await fetch(
+          "https://d-voting-backend.vercel.app/api/v1/voter/voter-image",
+          {
             method: "POST",
             headers: {
               "Content-Type": "application/json",
               "x-access-token": `${token}`,
             },
             body: JSON.stringify(voterData),
-          });
-       
+          }
+        );
+
       } else {
-        toast.error("Failed to register voter");
+        toast.error("Failed to register voter.");
       }
 
       nameRef.current.value = "";
@@ -82,7 +85,7 @@ function RegisterVoter() {
       fileRef.current.value = "";
     } catch (error) {
       console.error("Error during voter registration:", error.message || error);
-      toast.error("Voter already registered or an error occurred.");
+      toast.error("An error occurred during registration.");
     } finally {
       setLoading(false);
     }
@@ -126,13 +129,13 @@ function RegisterVoter() {
   return (
     <Layout>
       <ToastContainer />
-      <div className="flex items-center m-2 justify-center">
+      <div className="flex items-center justify-center py-8">
         <form
           onSubmit={handleVoterRegistration}
           className="w-full max-w-lg bg-white p-8 rounded-lg shadow-lg space-y-4 md:max-w-md border"
         >
           <h2 className="text-3xl font-extrabold text-gray-900 mb-8 text-center">
-            Register Voter
+            Register as a Voter
           </h2>
 
           <div>
@@ -221,12 +224,13 @@ function RegisterVoter() {
               "Register"
             )}
           </button>
+
           <p
             onClick={() => navigateTo("/register-candidate")}
             className="mt-4 text-center"
           >
             Are you a candidate?{" "}
-            <span className="text-blue-500 hover:underline cursor-pointer mt-4 text-center">
+            <span className="text-blue-500 hover:underline cursor-pointer">
               Click here
             </span>
           </p>
