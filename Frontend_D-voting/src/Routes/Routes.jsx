@@ -13,6 +13,7 @@ import Vote from "../pages/Voting/Vote";
 import VotingStatus from "../Components/ElectionCommision/VotingStatus";
 import Layout from "../Components/Layout";
 import Winner from "../pages/Winner";
+import Login from "../Components/admin/Login";
 
 
 
@@ -111,6 +112,16 @@ const routes = createBrowserRouter([
       <>
         <Header />
         <Winner />
+        <Footer />
+      </>
+    ),
+  },
+  {
+    path: "/login-election-commision",
+    element: (
+      <>
+        <Header />
+        <Login />
         <Footer />
       </>
     ),
