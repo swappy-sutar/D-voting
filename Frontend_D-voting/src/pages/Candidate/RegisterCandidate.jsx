@@ -4,6 +4,7 @@ import Layout from "../../Components/Layout";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { useNavigate } from "react-router-dom";
+import { storage } from "../../firebase.js";
 import {
   getStorage,
   ref,
@@ -84,27 +85,29 @@ function RegisterCandidate() {
 
         const uploadedUrl = await handleFileUpload();
 
-        const candidateData = {
-          accountAddress: selectedAccount,
-          imageUrl: uploadedUrl,
-        };
+        if (uploadedUrl) {
+          const candidateData = {
+            accountAddress: selectedAccount,
+            imageUrl: uploadedUrl,
+          };
 
+          await fetch("https://d-voting-backend.vercel.app/api/v1/candidate/candidate-image", {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+              "x-access-token": `${token}`,
+            },
+            body: JSON.stringify(candidateData),
+          });
 
-        await fetch("https://d-voting-backend.vercel.app/api/v1/candidate/candidate-image", {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            "x-access-token": `${token}`,
-          },
-          body: JSON.stringify(candidateData),
-        });
-
-        nameRef.current.value = "";
-        ageRef.current.value = "";
-        genderRef.current.value = "";
-        partyRef.current.value = "";
-        depositRef.current.value = "";
-        fileRef.current.value = "";
+          // Clear form fields
+          nameRef.current.value = "";
+          ageRef.current.value = "";
+          genderRef.current.value = "";
+          partyRef.current.value = "";
+          depositRef.current.value = "";
+          fileRef.current.value = "";
+        }
       } else {
         toast.error("Failed to register candidate");
       }
@@ -116,48 +119,47 @@ function RegisterCandidate() {
     }
   };
 
- const handleFileUpload = async () => {
-   const file = fileRef.current.files[0];
-   if (!file) {
-     toast.error("Please select an image to upload.");
-     return null;
-   }
+  const handleFileUpload = async () => {
+    const file = fileRef.current.files[0];
+    if (!file) {
+      toast.error("Please select an image to upload.");
+      return null;
+    }
 
-   if (!file.type.startsWith("image/")) {
-     toast.error("Only image files are allowed.");
-     return null;
-   }
+    if (!file.type.startsWith("image/")) {
+      toast.error("Only image files are allowed.");
+      return null;
+    }
 
-   try {
-     const storage = getStorage();
-     const storageRef = ref(storage, `candidate-images/${selectedAccount}`);
-     const uploadTask = uploadBytesResumable(storageRef, file);
+    try {
+      const storage = getStorage();
+      const storageRef = ref(storage, `candidate-images/${selectedAccount}`);
+      const uploadTask = uploadBytesResumable(storageRef, file);
 
-     return new Promise((resolve, reject) => {
-       uploadTask.on(
-         "state_changed",
-         (snapshot) => {
-           const progress =
-             (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
-           console.log(`Upload is ${progress}% done`);
-         },
-         (error) => {
-           toast.error(`Upload failed: ${error.message}`);
-           reject(error);
-         },
-         async () => {
-           const downloadUrl = await getDownloadURL(uploadTask.snapshot.ref);
-           setImageUrl(downloadUrl);
-           resolve(downloadUrl);
-         }
-       );
-     });
-   } catch (error) {
-     toast.error("Failed to upload image.");
-     return null;
-   }
- };
-
+      return new Promise((resolve, reject) => {
+        uploadTask.on(
+          "state_changed",
+          (snapshot) => {
+            const progress =
+              (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
+            console.log(`Upload is ${progress}% done`);
+          },
+          (error) => {
+            toast.error(`Upload failed: ${error.message}`);
+            reject(error);
+          },
+          async () => {
+            const downloadUrl = await getDownloadURL(uploadTask.snapshot.ref);
+            setImageUrl(downloadUrl);
+            resolve(downloadUrl);
+          }
+        );
+      });
+    } catch (error) {
+      toast.error("Failed to upload image.");
+      return null;
+    }
+  };
 
   return (
     <Layout>
@@ -245,7 +247,9 @@ function RegisterCandidate() {
             <input
               type="file"
               ref={fileRef}
+              accept="image/*" // Only accept image files
               className="mt-1 w-full px-4 py-1 border border-gray-300 rounded-md bg-white text-gray-600 file:mr-3 file:py-2 file:px-3 file:rounded file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-600 hover:file:bg-blue-100 focus:outline-none"
+              required // Make the file input required
             />
           </div>
 
@@ -275,24 +279,15 @@ function RegisterCandidate() {
                   <path
                     className="opacity-75"
                     fill="currentColor"
-                    d="M4 12a8 8 0 018-8v8H4z"
+                    d="M4 12c0-4.418 3.582-8 8-8s8 3.582 8 8-3.582 8-8 8-8-3.582-8-8z"
                   />
                 </svg>
-                Registering...
+                Processing...
               </>
             ) : (
-              "Register"
+              "Register Candidate"
             )}
           </button>
-          <p
-            onClick={() => navigateTo("/register-voter")}
-            className="mt-4 text-center"
-          >
-            Are you a voter?{" "}
-            <span className="text-blue-500 hover:underline cursor-pointer mt-4 text-center">
-              Click here
-            </span>
-          </p>
         </form>
       </div>
     </Layout>

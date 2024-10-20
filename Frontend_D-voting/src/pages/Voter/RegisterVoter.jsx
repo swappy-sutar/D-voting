@@ -3,8 +3,13 @@ import { useWeb3Context } from "../../context/UseWeb3Context";
 import { toast, ToastContainer } from "react-toastify";
 import { useNavigate } from "react-router-dom";
 import "react-toastify/dist/ReactToastify.css";
-import { getStorage, ref, uploadBytesResumable, getDownloadURL } from "firebase/storage"; 
+import {
+  ref,
+  uploadBytesResumable,
+  getDownloadURL,
+} from "firebase/storage";
 import Layout from "../../Components/Layout";
+import { storage } from "../../firebase.js";
 
 function RegisterVoter() {
   const { web3State } = useWeb3Context();
@@ -51,34 +56,37 @@ function RegisterVoter() {
         age,
         genderInput
       );
-
       const receipt = await transaction.wait();
 
       if (receipt.status === 1) {
         toast.success("Voter registered successfully!");
         const uploadedUrl = await handleFileUpload();
 
-        const voterData = {
-          accountAddress: selectedAccount,
-          imageUrl: uploadedUrl,
-        };
+        if (uploadedUrl) {
+          setImageUrl(uploadedUrl); // Set image URL only if upload was successful
 
-        await fetch(
-          "https://d-voting-backend.vercel.app/api/v1/voter/voter-image",
-          {
-            method: "POST",
-            headers: {
-              "Content-Type": "application/json",
-              "x-access-token": `${token}`,
-            },
-            body: JSON.stringify(voterData),
-          }
-        );
+          const voterData = {
+            accountAddress: selectedAccount,
+            imageUrl: uploadedUrl,
+          };
 
+          await fetch(
+            "https://d-voting-backend.vercel.app/api/v1/voter/voter-image",
+            {
+              method: "POST",
+              headers: {
+                "Content-Type": "application/json",
+                "x-access-token": `${token}`,
+              },
+              body: JSON.stringify(voterData),
+            }
+          );
+        }
       } else {
         toast.error("Failed to register voter.");
       }
 
+      // Reset form fields
       nameRef.current.value = "";
       ageRef.current.value = "";
       genderRef.current.value = "";
@@ -93,11 +101,16 @@ function RegisterVoter() {
 
   const handleFileUpload = async () => {
     const file = fileRef.current.files[0];
-    if (!file) return null;
+    if (!file) {
+      toast.error("Please select an image to upload.");
+      return null;
+    }
 
     try {
-      const storage = getStorage();
-      const storageRef = ref(storage, `voter-images/${selectedAccount}`);
+      const storageRef = ref(
+        storage,
+        `voter-images/${selectedAccount}/${file.name}`
+      );
       const uploadTask = uploadBytesResumable(storageRef, file);
 
       return new Promise((resolve, reject) => {
@@ -114,8 +127,7 @@ function RegisterVoter() {
           },
           async () => {
             const downloadUrl = await getDownloadURL(uploadTask.snapshot.ref);
-            setImageUrl(downloadUrl);
-            resolve(downloadUrl);
+            resolve(downloadUrl); // Resolve with the download URL
           }
         );
       });
