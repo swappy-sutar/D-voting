@@ -42,6 +42,7 @@ const GetWeb3State = async () => {
       `https://d-voting-backend.vercel.app/api/v1/auth/authentication?accountAddress=${selectedAccount}`,
       dataSignature
     );
+    console.log("res.data",res.data);
    
     localStorage.setItem("token", res.data.token);
   
