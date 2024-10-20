@@ -4,7 +4,6 @@ import axios from "axios";
 import { toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 
-const apiurl = import.meta.env.backend_URL;
 
 const GetWeb3State = async () => {
   try {
@@ -36,9 +35,11 @@ const GetWeb3State = async () => {
       "Welcome to Voting Dapp. You accept our terms and conditions";
     const signature = await signer.signMessage(message);
     const dataSignature = { signature };
+   
+    
 
     const res = await axios.post(
-      `https://d-voting-backend.vercel.app/api/v1/auth/authentication?accountAddress=${selectedAccount}`,
+      `http://localhost:8000/api/v1/auth/authentication?accountAddress=${selectedAccount}`,
       dataSignature
     );
    
@@ -48,7 +49,8 @@ const GetWeb3State = async () => {
 
     try {
       contractInstance = new ethers.Contract(contractAddress, abi, signer);
-      console.log("contractInstance",contractInstance);
+      console.log("create contract instance successfully");
+      
     } catch (error) {
       toast.error("Failed to create contract instance");
       console.error(
