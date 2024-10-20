@@ -5,6 +5,8 @@ import { handleAccountChange } from "../utils/HandleAccountChange";
 import { handleChainChange } from "../utils/HandleChainChange";
 
 const Web3Provider = ({ children }) => {
+  console.log("provider");
+  
   const [web3State, setWeb3State] = useState({
     contractInstance: null,
     selectedAccount: null,
@@ -14,7 +16,7 @@ const Web3Provider = ({ children }) => {
  const handleWallet = async () => {
    try {
 
-    
+
     console.log("provider");
     
      const { contractInstance, selectedAccount, chainId } = await GetWeb3State();
