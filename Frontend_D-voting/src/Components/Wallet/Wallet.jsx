@@ -8,20 +8,10 @@ import Layout from "../Layout";
 import { motion } from "framer-motion";
 
 const Wallet = () => {
-  
-  
   const { handleWallet, web3State } = useWeb3Context();
   const { selectedAccount } = web3State;
   const [loading, setLoading] = useState(false);
   const navigateTo = useNavigate();
- 
-
-
-  console.log("selectedAccount", selectedAccount);
-  console.log("handleWallet", handleWallet);
-  console.log("web3State", web3State);
-
-  
 
   useEffect(() => {
     if (selectedAccount != null) {
@@ -32,7 +22,12 @@ const Wallet = () => {
   }, [selectedAccount, navigateTo]);
 
   const handleConnectWallet = async () => {
-    setLoading(true); 
+    if (typeof window.ethereum === "undefined") {
+      toast.error("MetaMask is not installed. Please install MetaMask to continue.");
+      return;
+    }
+
+    setLoading(true);
     await handleWallet();
   };
 
