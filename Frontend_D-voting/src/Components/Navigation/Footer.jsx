@@ -1,5 +1,6 @@
 import React from "react";
 import { Link } from "react-router-dom";
+import { FaGithub, FaInstagram, FaLinkedin } from "react-icons/fa"; // Import icons from react-icons
 
 function Footer() {
   return (
@@ -8,7 +9,7 @@ function Footer() {
         <div className="text-white font-bold text-2xl md:text-2xl mb-4 text-left md:text-center hover:text-black transition duration-300">
           D-Voting
         </div>
-        
+
         <ul className="flex flex-col md:flex-row space-y-2 md:space-y-0 md:space-x-6 text-left md:text-center w-full md:w-auto">
           <li className="w-full md:w-auto">
             <Link
@@ -66,8 +67,35 @@ function Footer() {
               Election Commission
             </Link>
           </li>
-        
         </ul>
+
+        {/* Social Media Icons Section */}
+        <div className="flex space-x-6 mt-4">
+          <a
+            href="https://github.com/swappy-sutar/"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="text-white hover:text-black transition duration-300"
+          >
+            <FaGithub size={24} />
+          </a>
+          <a
+            href="https://www.instagram.com/swappy_sutar/"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="text-white hover:text-black transition duration-300"
+          >
+            <FaInstagram size={24} />
+          </a>
+          <a
+            href="https://www.linkedin.com/in/swapnil-sutar-2948971b4/"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="text-white hover:text-black transition duration-300"
+          >
+            <FaLinkedin size={24} />
+          </a>
+        </div>
 
         <div className="text-white text-sm mt-6 flex flex-col items-center md:flex-row justify-between w-full md:w-auto">
           <div className="mb-2 md:mb-0">
