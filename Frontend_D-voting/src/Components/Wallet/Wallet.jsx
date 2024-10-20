@@ -8,10 +8,14 @@ import Layout from "../Layout";
 import { motion } from "framer-motion";
 
 const Wallet = () => {
+  console.log(before);
+  
   const { handleWallet, web3State } = useWeb3Context();
   const { selectedAccount } = web3State;
   const [loading, setLoading] = useState(false);
   const navigateTo = useNavigate();
+  console.log(after);
+
 
   console.log("selectedAccount", selectedAccount);
   console.log("handleWallet", handleWallet);
