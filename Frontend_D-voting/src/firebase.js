@@ -1,8 +1,6 @@
 
 import { initializeApp } from "firebase/app";
 import { getStorage } from "firebase/storage";
-import dotenv from "dotenv"
-dotenv.config();
 
 const firebaseConfig = {
   apiKey: import.meta.env.FIREBASE_API_KEY,
