@@ -1,14 +1,13 @@
 import express from "express";
 import { candidateImage } from "../controllers/Candidate/candidateImage.controller.js";
-import { candidateUpload } from "../middlewares/multer.middlerware.js";
-import { getCandidateList } from "../controllers/Candidate/getCandidateList.js";
-import { deleteAllCandidates } from "../controllers/Candidate/deleteCandidates.js";
+import { getCandidateList } from "../controllers/Candidate/getCandidateList.controller.js";
+import { deleteAllCandidates } from "../controllers/Candidate/deleteCandidates.controller.js";
 
 
 
 const router = express.Router();
 
-router.post("/candidate-image", candidateUpload, candidateImage); 
+router.post("/candidate-image", candidateImage); 
 router.get("/get-candidate-list",getCandidateList);
 router.delete("/delete-All-Candidates", deleteAllCandidates);
 

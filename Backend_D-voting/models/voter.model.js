@@ -1,11 +1,12 @@
 import mongoose, { Schema } from "mongoose";
 
-const voterSchema = new Schema({
+const voterSchema = new Schema(
+  {
     accountAddress: {
       type: String,
       required: true,
     },
-    imageName: {
+    imageUrl: {
       type: String,
       required: true,
     },

@@ -2,10 +2,7 @@ import { Candidate } from "../../models/Candidate.model.js";
 
 const getCandidateList = async (req, res) => {
   try {
-
-    const candidateList = await Candidate.find()
-
-    console.log(candidateList);
+    const candidateList = await Candidate.find();
 
     return res.status(200).json({
       status: true,

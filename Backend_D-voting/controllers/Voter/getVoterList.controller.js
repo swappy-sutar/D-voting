@@ -4,8 +4,6 @@ const getVoterList = async (req, res) => {
   try {
     const voterList = await Voter.find();
 
-    console.log(voterList);
-
     return res.status(200).json({
       status: true,
       message: "Voter list retrieved successfully",

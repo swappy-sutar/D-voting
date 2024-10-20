@@ -1,28 +1,25 @@
 import { Candidate } from "../../models/Candidate.model.js";
 
-
 const candidateImage = async (req, res) => {
   try {
-    const accountAddress = req.accountAddress; 
-    const imageName = req.file.filename;
+    const { accountAddress, imageUrl } = req.body;
 
-    if (!accountAddress || !imageName) {
+    if (!accountAddress || !imageUrl) {
       return res.status(400).json({
         status: false,
-        message: "Missing accountAddress or imageName",
+        message: "Missing accountAddress or imageUrl",
       });
     }
 
-    const saveCandidate = await Candidate.create({
-      accountAddress: accountAddress,
-      imageName: imageName,
+    const newCandidate = await Candidate.create({
+      accountAddress,
+      imageUrl,
     });
 
     res.status(200).json({
       status: true,
-      message: "Candidate image saved successfully",
-      data: saveCandidate,
-      imageUrl: `/D-voting/candidateImages/${imageName}`, 
+      message: "Voter registered and image URL saved successfully",
+      data: newCandidate,
     });
   } catch (error) {
     console.error(error);

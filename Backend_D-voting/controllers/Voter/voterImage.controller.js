@@ -2,38 +2,30 @@ import { Voter } from "../../models/voter.model.js";
 
 const voterImage = async (req, res) => {
   try {
-    const accountAddress = req.accountAddress;
-    const imageName = req.file.filename;
+    const { accountAddress, imageUrl } = req.body;
 
-    console.log("voterImage data",{
-      accountAddress,
-      imageName
-    });
-    
-
-    if (!accountAddress || !imageName) {
+    if (!accountAddress || !imageUrl) {
       return res.status(400).json({
         status: false,
-        message: "Missing accountAddress or imageName",
+        message: "Missing accountAddress or imageUrl",
       });
     }
 
-    const saveCandidate = await Voter.create({
-      accountAddress: accountAddress,
-      imageName: imageName,
+    const newVoter = await Voter.create({
+      accountAddress,
+      imageUrl,
     });
 
     res.status(200).json({
       status: true,
-      message: "Candidate image saved successfully",
-      data: saveCandidate,
-      imageUrl: `/D-voting/voterImages/${imageName}`,
+      message: "Voter registered and image URL saved successfully",
+      data: newVoter,
     });
   } catch (error) {
-    console.log(error);
+    console.error("Error saving voter image", error);
     res.status(400).json({
       status: false,
-      message: "Error while saving Voter image",
+      message: "Error saving voter image",
       error: error.message,
     });
   }

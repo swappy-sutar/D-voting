@@ -6,6 +6,9 @@ const auth = async (req, res) => {
     const { accountAddress } = req.query;
     const { signature } = req.body;
 
+ 
+    
+
     if (!accountAddress || !signature) {
       return res.status(401).json({
         status: false,

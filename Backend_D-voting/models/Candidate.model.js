@@ -6,7 +6,7 @@ const CandidateSchema = new Schema(
       type: String,
       required: true,
     },
-    imageName: {
+    imageUrl: {
       type: String,
       required: true,
     },
