@@ -1,5 +1,5 @@
 import { ethers } from "ethers";
-import abi from "../constant/abiV2.json";
+import abi from "../constant/abi.json";
 import axios from "axios";
 import { toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
@@ -29,7 +29,7 @@ const GetWeb3State = async () => {
     const provider = new ethers.BrowserProvider(window.ethereum);
     const signer = await provider.getSigner();
 
-    const contractAddress = "0xB32Ed632A2d02AfC6d5493a5F19983f01ea07C09"; 
+    const contractAddress = "0xD88346AA5a16724A39E5976724342455AAEE3DFA"; 
 
     const message =
       "Welcome to Voting Dapp. You accept our terms and conditions";
