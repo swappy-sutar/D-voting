@@ -63,7 +63,7 @@ function RegisterVoter() {
             imageUrl: uploadedUrl,
           };
 
-          await fetch("http://localhost:8000/api/v1/voter/voter-image", {
+          await fetch("https://d-voting-backend.vercel.app/api/v1/voter/voter-image", {
             method: "POST",
             headers: {
               "Content-Type": "application/json",

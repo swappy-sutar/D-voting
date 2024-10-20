@@ -58,7 +58,7 @@ function GetCandidate() {
    const fetchImages = async () => {
      try {
        const response = await fetch(
-         `http://localhost:8000/api/v1/candidate/get-candidate-list`,
+         `https://d-voting-backend.vercel.app/api/v1/candidate/get-candidate-list`,
          {
            headers: {
              "Content-Type": "application/json",

@@ -90,7 +90,7 @@ function RegisterCandidate() {
         };
 
 
-        await fetch("http://localhost:8000/api/v1/candidate/candidate-image", {
+        await fetch("https://d-voting-backend.vercel.app/api/v1/candidate/candidate-image", {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
