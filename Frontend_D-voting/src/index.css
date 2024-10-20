@@ -16,3 +16,20 @@
 .animate-fadeIn {
   animation: fadeIn 0.6s ease forwards;
 }
+
+/* Header.css */
+.underline-animation {
+  position: absolute;
+  width: 100%;
+  height: 2px;
+  background-color: white;
+  bottom: -5px; /* Adjust position below the text */
+  left: 50%;
+  transform: translateX(-50%) scaleX(0); /* Start scaled down */
+  transition: transform 0.3s ease;
+  /* Transition for smooth scaling */
+}
+
+li:hover .underline-animation {
+  transform: translateX(-50%) scaleX(1); /* Scale to full width on hover */
+}
