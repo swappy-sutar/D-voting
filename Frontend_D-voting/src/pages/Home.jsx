@@ -24,13 +24,15 @@ function Home() {
       navigateTo("/register-voter");
     } else if (role === "Candidate") {
       navigateTo("/register-candidate");
+    } else if (role === "Election-Commision"){
+      navigateTo("/login-election-commision");
     }
   };
 
   return (
     <Layout>
       <div className="relative flex flex-col justify-center items-center h-screen px-4 md:px-8 lg:px-16 ">
-        <div className="relative flex flex-col items-center justify-center p-6 w-full max-w-lg bg-white bg-opacity-90 rounded-xl shadow-lg">
+        <div className="relative flex flex-col items-center justify-center p-6 w-full max-w-lg bg-white rounded-xl shadow-lg">
           <h1 className="text-3xl md:text-4xl font-extrabold text-gray-800 mb-4 text-center">
             Welcome to Voting
           </h1>
@@ -47,6 +49,7 @@ function Home() {
             </option>
             <option value="Voter">Voter</option>
             <option value="Candidate">Candidate</option>
+            <option value="Election-Commision">Election-Commision</option>
           </select>
           <button
             onClick={handleRegister}
