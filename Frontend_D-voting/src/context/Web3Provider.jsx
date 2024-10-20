@@ -15,10 +15,12 @@ const Web3Provider = ({ children }) => {
   });
 
   const [hasMetaMask, setHasMetaMask] = useState(true);
+  const [isMobile, setIsMobile] = useState(false);
 
   const handleWallet = async () => {
     try {
       if (window.ethereum) {
+        // Request account access if needed
         await window.ethereum.request({ method: "eth_requestAccounts" });
 
         const { contractInstance, selectedAccount, chainId } =
@@ -37,6 +39,10 @@ const Web3Provider = ({ children }) => {
   };
 
   useEffect(() => {
+    const userAgent = navigator.userAgent || navigator.vendor || window.opera;
+    // Check if the user is on a mobile device
+    setIsMobile(/android|iPad|iPhone|iPod/.test(userAgent) && !window.MSStream);
+
     if (typeof window.ethereum === "undefined") {
       setHasMetaMask(false);
       toast.error(
@@ -65,14 +71,12 @@ const Web3Provider = ({ children }) => {
         <div className="relative flex flex-col items-center justify-center h-screen px-4 md:px-8 lg:px-16">
           <div className="relative z-10 flex flex-col items-center text-center animate-fadeIn">
             <motion.h1
-              className="text-white bg-black text-xl md:text-6xl p-6 rounded-lg font-bold mb-5 drop-shadow-lg"
-              initial={{ opacity: 0, y: -50 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 1 }}
+              className="text-white bg-black text-xl md:text-6xl p-6 rounded-lg font-bold mb-10 drop-shadow-lg"
+             
             >
               MetaMask Not Detected
               <motion.p
-                className="text-white text-lg md:text-xl m-5"
+                className="text-white text-lg md:text-lg m-5"
                 initial={{ opacity: 0, scale: 0.5 }}
                 animate={{ opacity: 1, scale: 1 }}
                 transition={{ duration: 1.5 }}
@@ -81,17 +85,37 @@ const Web3Provider = ({ children }) => {
               </motion.p>
             </motion.h1>
 
-            <motion.button
-              onClick={() =>
-                window.open("https://metamask.io/download.html", "_blank")
-              }
-              className="px-8 py-4 bg-white text-indigo-600 font-bold text-lg rounded-full shadow-lg transform hover:scale-110 transition duration-300 ease-in-out hover:bg-indigo-100 hover:text-black focus:outline-none focus:ring-2 focus:ring-indigo-400 focus:ring-opacity-50"
-              initial={{ opacity: 0, y: 50 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 1 }}
-            >
-              Install MetaMask
-            </motion.button>
+            {isMobile ? (
+              
+              <>
+                <motion.button
+                  onClick={() => {
+                    window.open(
+                      "https://play.google.com/store/apps/details?id=io.metamask",
+                      "_blank"
+                    );
+                  }}
+                  className="px-8 py-4 bg-white text-indigo-600 font-bold text-lg rounded-full shadow-lg transform hover:scale-110 transition duration-300 ease-in-out hover:bg-indigo-100 hover:text-black focus:outline-none focus:ring-2 focus:ring-indigo-400 focus:ring-opacity-50 animate-bounce"
+                >
+                  Install MetaMask
+                </motion.button>
+              </>
+            ) : (
+              // For laptop users, show the install option for Chrome extension
+              <>
+                <motion.button
+                  onClick={() => {
+                    window.open(
+                      "https://chrome.google.com/webstore/detail/metamask/nckgahadagohaagdgbonnnilgkkmcgdg",
+                      "_blank"
+                    );
+                  }}
+                  className="px-8 py-4 bg-white text-indigo-600 font-bold text-lg rounded-full shadow-lg transform hover:scale-110 transition duration-300 ease-in-out hover:bg-indigo-100 hover:text-black focus:outline-none focus:ring-2 focus:ring-indigo-400 focus:ring-opacity-50 animate-bounce"
+                >
+                  Install MetaMask for Chrome
+                </motion.button>
+              </>
+            )}
           </div>
         </div>
       </Layout>
