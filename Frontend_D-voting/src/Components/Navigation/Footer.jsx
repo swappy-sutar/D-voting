@@ -5,12 +5,10 @@ function Footer() {
   return (
     <footer className="bg-indigo-600 shadow-lg justify-between">
       <div className="container mx-auto px-4 py-6 flex flex-col items-start md:items-center">
-        {/* Title */}
         <div className="text-white font-bold text-2xl md:text-2xl mb-4 text-left md:text-center hover:text-black transition duration-300">
           D-Voting
         </div>
-
-        {/* Links */}
+        
         <ul className="flex flex-col md:flex-row space-y-2 md:space-y-0 md:space-x-6 text-left md:text-center w-full md:w-auto">
           <li className="w-full md:w-auto">
             <Link
@@ -68,17 +66,9 @@ function Footer() {
               Election Commission
             </Link>
           </li>
-          <li className="w-full md:w-auto">
-            <Link
-              to="/get-winner"
-              className="text-white hover:text-black transition duration-300"
-            >
-              Winner
-            </Link>
-          </li>
+        
         </ul>
 
-        {/* Copyright */}
         <div className="text-white text-sm mt-6 flex flex-col items-center md:flex-row justify-between w-full md:w-auto">
           <div className="mb-2 md:mb-0">
             <a
