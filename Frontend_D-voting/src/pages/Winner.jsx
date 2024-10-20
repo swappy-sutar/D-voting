@@ -16,7 +16,6 @@ function Winner() {
     setLoading(true);
     try {
       const winnerAddress = await contractInstance.winner();
-      console.log("Winner Address:", winnerAddress);
 
       if (winnerAddress == 0x0000000000000000000000000000000000000000) {
         toast.error("Winner is not declare yet!");
