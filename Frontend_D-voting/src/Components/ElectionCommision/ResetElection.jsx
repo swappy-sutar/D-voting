@@ -55,7 +55,7 @@ function ResetElection() {
       );
       const res = await response.json();
       if (response.ok) {
-        console.log("Voters deleted successfully", res);
+        console.log("Voters deleted successfully");
       } else {
         console.error("Failed to delete voters", res);
         toast.error("Failed to delete voters.");
@@ -80,7 +80,7 @@ function ResetElection() {
       );
       const res = await response.json();
       if (response.ok) {
-        console.log("Candidates deleted successfully", res);
+        console.log("Candidates deleted successfully");
       } else {
         console.error("Failed to delete candidates", res);
         toast.error("Failed to delete candidates.");
