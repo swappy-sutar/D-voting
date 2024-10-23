@@ -88,6 +88,8 @@ function GetCandidate() {
       setLoading(true);
       await Promise.all([fetchList(), fetchImages()]);
       setLoading(false);
+     toast.success("Candidate fetched successfully!");
+
     };
 
     fetchAllData();
@@ -103,7 +105,7 @@ function GetCandidate() {
       <img
         src={candidateImage.imageUrl}
         alt="Candidate"
-        className="w-16 h-16 rounded-full border border-gray-300 shadow-2xl object-cover"
+        className="w-16 h-16 rounded-full object-cover shadow-2xl"
       />
     ) : (
       <span className="text-gray-500 italic">No Image</span>

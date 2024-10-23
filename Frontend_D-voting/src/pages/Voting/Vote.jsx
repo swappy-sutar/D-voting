@@ -5,7 +5,6 @@ import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { useNavigate } from "react-router-dom";
 
-const apiurl = import.meta.env.backend_URL;
 
 function Vote() {
   const { web3State } = useWeb3Context();
@@ -24,7 +23,7 @@ function Vote() {
     if (!token || !contractInstance) {
       navigateTo("/");
     }
-  }, [navigateTo, contractInstance, token]);
+  }, [contractInstance, token]);
 
   const votingStatusMap = {
     0: "Not Started",
@@ -41,9 +40,7 @@ function Vote() {
 
         const candidateAddresses = await contractInstance.getCandidateList();
         if (candidateAddresses.length === 0) {
-          if (!error) {
-            toast.error("No candidates available");
-          }
+          toast.error("No candidates available");
           return;
         }
 
@@ -64,14 +61,15 @@ function Vote() {
       } catch (error) {
         setError("Failed to fetch candidate list.");
         toast.error("Failed to fetch candidate list.");
+      } finally {
+        setLoading(false);
       }
-      setLoading(false);
     };
 
     const fetchImages = async () => {
+
       try {
-        const response = await fetch(
-          `https://d-voting-backend.vercel.app/api/v1/candidate/get-candidate-list`,
+        const response = await fetch(`https://d-voting-backend.vercel.app/api/v1/candidate/get-candidate-list`,
           {
             headers: {
               "Content-Type": "application/json",
@@ -90,7 +88,6 @@ function Vote() {
           setCandidateImages(images);
         } else {
           setError(res.message);
-          toast.error(res.message);
         }
       } catch (error) {
         setError("Failed to fetch candidate images.");
@@ -114,7 +111,7 @@ function Vote() {
       fetchVotingStatus();
       fetchImages();
     }
-  }, [contractInstance, token, error]);
+  }, [contractInstance, token]);
 
   const getCandidateImage = (candidateAddress) => {
     const candidateImage = candidateImages.find(
@@ -182,7 +179,6 @@ function Vote() {
                     <th className="px-6 py-3 text-left text-xs font-medium text-gray-700 uppercase tracking-wider">
                       Party
                     </th>
-                    
                     <th className="px-6 py-3 text-left text-xs font-medium text-gray-700 uppercase tracking-wider">
                       Photo
                     </th>
@@ -195,7 +191,7 @@ function Vote() {
                   {candidateList.length === 0 ? (
                     <tr>
                       <td
-                        colSpan="6"
+                        colSpan="5"
                         className="px-6 py-4 text-center text-gray-600"
                       >
                         No candidates found.

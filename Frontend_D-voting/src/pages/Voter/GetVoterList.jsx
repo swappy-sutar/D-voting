@@ -105,7 +105,7 @@ function GetVoter() {
         className="w-16 h-16 rounded-full object-cover shadow-2xl"
       />
     ) : (
-      <span>No Image</span>
+      <span className="text-gray-500 italic">No Image</span>
     );
   };
 
