@@ -1,8 +1,9 @@
 import React, { useEffect, useState } from "react";
 import { useWeb3Context } from "../../context/UseWeb3Context";
-import { toast } from "react-toastify";
 import { useNavigate } from "react-router-dom";
 import Layout from "../../Components/Layout";
+import { ToastContainer, toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
 function GetCandidate() {
   const { web3State } = useWeb3Context();
@@ -11,20 +12,18 @@ function GetCandidate() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [candidateImages, setCandidateImages] = useState([]);
-
   const [currentPage, setCurrentPage] = useState(1);
   const candidatesPerPage = 5;
   const navigateTo = useNavigate();
   const token = localStorage.getItem("token");
 
   useEffect(() => {
-    if (!token) {
-      navigateTo("/");
-    }
+    if (!token) navigateTo("/");
   }, [navigateTo, token]);
 
   useEffect(() => {
-    const fetchList = async () => {
+    const fetchCandidatesData = async () => {
+      setLoading(true);
       try {
         if (!contractInstance) return;
 
@@ -48,9 +47,12 @@ function GetCandidate() {
         );
 
         setCandidateList(candidateDetails);
+        toast.success("Candidates fetched successfully!");
       } catch (error) {
         setError("Failed to fetch candidate list.");
         toast.error("Failed to fetch candidate list.");
+      } finally {
+        setLoading(false);
       }
     };
 
@@ -73,7 +75,6 @@ function GetCandidate() {
             imageUrl: candidate.imageUrl,
             accountAddress: candidate.accountAddress,
           }));
-
           setCandidateImages(images);
         } else {
           setError(res.message);
@@ -84,15 +85,8 @@ function GetCandidate() {
       }
     };
 
-    const fetchAllData = async () => {
-      setLoading(true);
-      await Promise.all([fetchList(), fetchImages()]);
-      setLoading(false);
-     toast.success("Candidate fetched successfully!");
-
-    };
-
-    fetchAllData();
+    fetchCandidatesData();
+    fetchImages();
   }, [contractInstance, token]);
 
   const getCandidateImage = (candidateAddress) => {
@@ -100,7 +94,6 @@ function GetCandidate() {
       (image) =>
         image.accountAddress.toLowerCase() === candidateAddress.toLowerCase()
     );
-
     return candidateImage ? (
       <img
         src={candidateImage.imageUrl}
@@ -120,21 +113,10 @@ function GetCandidate() {
   );
   const totalPages = Math.ceil(candidateList.length / candidatesPerPage);
 
-  const handleNextPage = () => {
-    if (currentPage < totalPages) {
-      setCurrentPage(currentPage + 1);
-    }
-  };
-
-  const handlePreviousPage = () => {
-    if (currentPage > 1) {
-      setCurrentPage(currentPage - 1);
-    }
-  };
-
   return (
     <Layout>
       <div className="flex flex-col items-center justify-center min-h-screen p-6">
+        <ToastContainer />
         <div className="w-full max-w-5xl bg-white rounded-lg shadow-lg p-8">
           <h2 className="text-3xl font-extrabold text-gray-900 mb-10 text-center">
             Candidate List
@@ -149,24 +131,16 @@ function GetCandidate() {
               <table className="min-w-full table-auto divide-y divide-gray-300">
                 <thead className="bg-gray-200">
                   <tr>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-700 uppercase tracking-wider">
-                      ID
-                    </th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-700 uppercase tracking-wider">
-                      Name
-                    </th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-700 uppercase tracking-wider">
-                      Address
-                    </th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-700 uppercase tracking-wider">
-                      Party
-                    </th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-700 uppercase tracking-wider">
-                      Gender
-                    </th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-700 uppercase tracking-wider">
-                      Photo
-                    </th>
+                    {["ID", "Name", "Address", "Party", "Gender", "Photo"].map(
+                      (header) => (
+                        <th
+                          key={header}
+                          className="px-6 py-3 text-left text-xs font-medium text-gray-700 uppercase tracking-wider"
+                        >
+                          {header}
+                        </th>
+                      )
+                    )}
                   </tr>
                 </thead>
                 <tbody className="bg-white divide-y divide-gray-200">
@@ -202,9 +176,7 @@ function GetCandidate() {
                             ? "Male"
                             : candidate.gender === 2
                             ? "Female"
-                            : candidate.gender === 3
-                            ? "Other"
-                            : "Not Specified"}
+                            : "Other"}
                         </td>
                         <td className="px-6 py-4 text-sm text-gray-600 h-20 flex items-center">
                           {getCandidateImage(candidate.address)}
@@ -219,7 +191,7 @@ function GetCandidate() {
 
           <div className="flex justify-between items-center mt-6">
             <button
-              onClick={handlePreviousPage}
+              onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
               disabled={currentPage === 1}
               className={`px-3 py-1 text-white font-semibold bg-blue-600 rounded-lg shadow-md transition duration-300 ease-in-out transform ${
                 currentPage === 1
@@ -233,7 +205,9 @@ function GetCandidate() {
               Page {currentPage} of {totalPages}
             </span>
             <button
-              onClick={handleNextPage}
+              onClick={() =>
+                setCurrentPage((prev) => Math.min(prev + 1, totalPages))
+              }
               disabled={currentPage === totalPages}
               className={`px-3 py-1 text-white font-semibold bg-blue-600 rounded-lg shadow-md transition duration-300 ease-in-out transform ${
                 currentPage === totalPages

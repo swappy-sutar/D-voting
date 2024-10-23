@@ -13,7 +13,7 @@ function GetVoter() {
   const [error, setError] = useState(null);
   const [voterImages, setVoterImages] = useState([]);
   const [currentPage, setCurrentPage] = useState(1);
-  const [votersPerPage] = useState(5); 
+  const [votersPerPage] = useState(5);
   const navigateTo = useNavigate();
 
   const token = localStorage.getItem("token");
@@ -24,74 +24,73 @@ function GetVoter() {
     }
   }, [navigateTo, token]);
 
- useEffect(() => {
-   const fetchList = async () => {
-     try {
-       if (!contractInstance) return;
+  useEffect(() => {
+    const fetchList = async () => {
+      try {
+        if (!contractInstance) return;
 
-       const voterAddresses = await contractInstance.getVoterList();
-       if (voterAddresses.length === 0) {
-         toast.error("No Voters Available");
-         return;
-       }
+        const voterAddresses = await contractInstance.getVoterList();
+        if (voterAddresses.length === 0) {
+          toast.error("No Voters Available");
+          return;
+        }
 
-       const voterDetails = await Promise.all(
-         voterAddresses.map(async (address) => {
-           const voter = await contractInstance.getVoter(address);
-           return {
-             address,
-             name: voter[0],
-             age: Number(voter[1]),
-             gender: Number(voter[2]),
-           };
-         })
-       );
-       setVoterList(voterDetails);
-     } catch (error) {
-       console.error(error);
-       setError("Failed to fetch voter list.");
-       toast.error("Failed to fetch voter list.");
-     }
-   };
+        const voterDetails = await Promise.all(
+          voterAddresses.map(async (address) => {
+            const voter = await contractInstance.getVoter(address);
+            return {
+              address,
+              name: voter[0],
+              age: Number(voter[1]),
+              gender: Number(voter[2]),
+            };
+          })
+        );
+        setVoterList(voterDetails);
+        toast.success("Voters fetched successfully!");
+      } catch (error) {
+        console.error(error);
+        setError("Failed to fetch voter list.");
+        toast.error("Failed to fetch voter list.");
+      }
+    };
 
-   const fetchImages = async () => {
-     try {
-       const response = await fetch(
-         `https://d-voting-backend.vercel.app/api/v1/voter/get-voter-list`,
-         {
-           headers: {
-             "Content-Type": "application/json",
-             "x-access-token": token,
-             Authorization: `Bearer ${token}`,
-           },
-         }
-       );
-       const res = await response.json();
+    const fetchImages = async () => {
+      try {
+        const response = await fetch(
+          `https://d-voting-backend.vercel.app/api/v1/voter/get-voter-list`,
+          {
+            headers: {
+              "Content-Type": "application/json",
+              "x-access-token": token,
+              Authorization: `Bearer ${token}`,
+            },
+          }
+        );
+        const res = await response.json();
 
-       if (res.status) {
-         const images = res.data.map((voter) => ({
-           imageUrl: voter.imageUrl,
-           accountAddress: voter.accountAddress,
-         }));
-         setVoterImages(images);
-       } else {
-         setError(res.message);
-       }
-     } catch (error) {
-       setError("Failed to fetch voter images.");
-     }
-   };
+        if (res.status) {
+          const images = res.data.map((voter) => ({
+            imageUrl: voter.imageUrl,
+            accountAddress: voter.accountAddress,
+          }));
+          setVoterImages(images);
+        } else {
+          setError(res.message);
+        }
+      } catch (error) {
+        setError("Failed to fetch voter images.");
+      }
+    };
 
-   const fetchAllData = async () => {
-     setLoading(true);
-     await Promise.all([fetchList(), fetchImages()]);
-     setLoading(false);
-     toast.success("Voter fetched successfully!");
-   };
+    const fetchAllData = async () => {
+      setLoading(true);
+      await Promise.all([fetchList(), fetchImages()]);
+      setLoading(false);
+    };
 
-   fetchAllData();
- }, [contractInstance, token]);
-
+    fetchAllData();
+  }, [contractInstance, token]); 
 
   const getVoterImage = (voterAddress) => {
     const voterImage = voterImages.find(
@@ -105,15 +104,14 @@ function GetVoter() {
         className="w-16 h-16 rounded-full object-cover shadow-2xl"
       />
     ) : (
-      <span className="text-gray-500 italic">No Image</span>
+      <span>No Image</span>
     );
   };
 
-
-  const indexOfLastVoter = currentPage * votersPerPage; 
-  const indexOfFirstVoter = indexOfLastVoter - votersPerPage; 
+  const indexOfLastVoter = currentPage * votersPerPage;
+  const indexOfFirstVoter = indexOfLastVoter - votersPerPage;
   const currentVoters = voterList.slice(indexOfFirstVoter, indexOfLastVoter);
-  const totalPages = Math.ceil(voterList.length / votersPerPage); 
+  const totalPages = Math.ceil(voterList.length / votersPerPage);
 
   const handleNextPage = () => {
     if (currentPage < totalPages) {
