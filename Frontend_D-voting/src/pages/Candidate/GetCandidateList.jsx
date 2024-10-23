@@ -48,7 +48,6 @@ function GetCandidate() {
        );
 
        setCandidateList(candidateDetails);
-       toast.success("Candidate fetched successfully!");
      } catch (error) {
        setError("Failed to fetch candidate list.");
        toast.error("Failed to fetch candidate list.");
