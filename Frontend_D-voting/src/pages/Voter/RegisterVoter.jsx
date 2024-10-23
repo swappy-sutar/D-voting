@@ -1,13 +1,9 @@
 import { useRef, useState, useEffect } from "react";
 import { useWeb3Context } from "../../context/UseWeb3Context";
-import { toast, ToastContainer } from "react-toastify";
 import { useNavigate } from "react-router-dom";
+import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
-import {
-  ref,
-  uploadBytesResumable,
-  getDownloadURL,
-} from "firebase/storage";
+import { ref, uploadBytesResumable, getDownloadURL } from "firebase/storage";
 import Layout from "../../Components/Layout";
 import { storage } from "../../firebase.js";
 
@@ -60,10 +56,11 @@ function RegisterVoter() {
 
       if (receipt.status === 1) {
         toast.success("Voter registered successfully!");
+
         const uploadedUrl = await handleFileUpload();
 
         if (uploadedUrl) {
-          setImageUrl(uploadedUrl); // Set image URL only if upload was successful
+          setImageUrl(uploadedUrl);
 
           const voterData = {
             accountAddress: selectedAccount,
@@ -86,7 +83,6 @@ function RegisterVoter() {
         toast.error("Failed to register voter.");
       }
 
-      // Reset form fields
       nameRef.current.value = "";
       ageRef.current.value = "";
       genderRef.current.value = "";
@@ -127,7 +123,7 @@ function RegisterVoter() {
           },
           async () => {
             const downloadUrl = await getDownloadURL(uploadTask.snapshot.ref);
-            resolve(downloadUrl); // Resolve with the download URL
+            resolve(downloadUrl); 
           }
         );
       });

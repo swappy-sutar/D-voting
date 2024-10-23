@@ -11,9 +11,9 @@ function GetCandidate() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [candidateImages, setCandidateImages] = useState([]);
-  
+
   const [currentPage, setCurrentPage] = useState(1);
-  const [candidatesPerPage] = useState(5);
+  const candidatesPerPage = 5;
   const navigateTo = useNavigate();
   const token = localStorage.getItem("token");
 
@@ -23,76 +23,75 @@ function GetCandidate() {
     }
   }, [navigateTo, token]);
 
- useEffect(() => {
-   const fetchList = async () => {
-     try {
-       if (!contractInstance) return;
+  useEffect(() => {
+    const fetchList = async () => {
+      try {
+        if (!contractInstance) return;
 
-       const candidateAddresses = await contractInstance.getCandidateList();
-       if (candidateAddresses.length === 0) {
-         toast.error("No candidates available");
-         return;
-       }
+        const candidateAddresses = await contractInstance.getCandidateList();
+        if (candidateAddresses.length === 0) {
+          toast.error("No candidates available");
+          return;
+        }
 
-       const candidateDetails = await Promise.all(
-         candidateAddresses.map(async (address) => {
-           const candidate = await contractInstance.getCandidate(address);
-           return {
-             address,
-             name: candidate[0],
-             party: candidate[1],
-             age: Number(candidate[2]),
-             gender: Number(candidate[3]),
-           };
-         })
-       );
+        const candidateDetails = await Promise.all(
+          candidateAddresses.map(async (address) => {
+            const candidate = await contractInstance.getCandidate(address);
+            return {
+              address,
+              name: candidate[0],
+              party: candidate[1],
+              age: Number(candidate[2]),
+              gender: Number(candidate[3]),
+            };
+          })
+        );
 
-       setCandidateList(candidateDetails);
-     } catch (error) {
-       setError("Failed to fetch candidate list.");
-       toast.error("Failed to fetch candidate list.");
-     }
-   };
+        setCandidateList(candidateDetails);
+      } catch (error) {
+        setError("Failed to fetch candidate list.");
+        toast.error("Failed to fetch candidate list.");
+      }
+    };
 
-   const fetchImages = async () => {
-     try {
-       const response = await fetch(
-         `https://d-voting-backend.vercel.app/api/v1/candidate/get-candidate-list`,
-         {
-           headers: {
-             "Content-Type": "application/json",
-             "x-access-token": token,
-             Authorization: `Bearer ${token}`,
-           },
-         }
-       );
-       const res = await response.json();
+    const fetchImages = async () => {
+      try {
+        const response = await fetch(
+          `https://d-voting-backend.vercel.app/api/v1/candidate/get-candidate-list`,
+          {
+            headers: {
+              "Content-Type": "application/json",
+              "x-access-token": token,
+              Authorization: `Bearer ${token}`,
+            },
+          }
+        );
+        const res = await response.json();
 
-       if (res.status) {
-         const images = res.data.map((candidate) => ({
-           imageUrl: candidate.imageUrl,
-           accountAddress: candidate.accountAddress,
-         }));
+        if (res.status) {
+          const images = res.data.map((candidate) => ({
+            imageUrl: candidate.imageUrl,
+            accountAddress: candidate.accountAddress,
+          }));
 
-         setCandidateImages(images);
-       } else {
-         setError(res.message);
-       }
-     } catch (error) {
-       setError("Failed to fetch candidate images.");
-       toast.error("Failed to fetch candidate images.");
-     }
-   };
+          setCandidateImages(images);
+        } else {
+          setError(res.message);
+        }
+      } catch (error) {
+        setError("Failed to fetch candidate images.");
+        toast.error("Failed to fetch candidate images.");
+      }
+    };
 
-   const fetchAllData = async () => {
-     setLoading(true);
-     await Promise.all([fetchList(), fetchImages()]);
-     setLoading(false);
-   };
+    const fetchAllData = async () => {
+      setLoading(true);
+      await Promise.all([fetchList(), fetchImages()]);
+      setLoading(false);
+    };
 
-   fetchAllData();
- }, [contractInstance, navigateTo, token]);
-
+    fetchAllData();
+  }, [contractInstance, token]);
 
   const getCandidateImage = (candidateAddress) => {
     const candidateImage = candidateImages.find(
@@ -104,7 +103,7 @@ function GetCandidate() {
       <img
         src={candidateImage.imageUrl}
         alt="Candidate"
-        className="w-16 h-16 rounded-full border border-gray-300 shadow-2xl object-cover" 
+        className="w-16 h-16 rounded-full border border-gray-300 shadow-2xl object-cover"
       />
     ) : (
       <span className="text-gray-500 italic">No Image</span>
@@ -113,9 +112,11 @@ function GetCandidate() {
 
   const indexOfLastCandidate = currentPage * candidatesPerPage;
   const indexOfFirstCandidate = indexOfLastCandidate - candidatesPerPage;
-  const currentCandidates = candidateList.slice(indexOfFirstCandidate, indexOfLastCandidate);
-  const totalCandidates = candidateList.length;
-  const totalPages = Math.ceil(totalCandidates / candidatesPerPage);
+  const currentCandidates = candidateList.slice(
+    indexOfFirstCandidate,
+    indexOfLastCandidate
+  );
+  const totalPages = Math.ceil(candidateList.length / candidatesPerPage);
 
   const handleNextPage = () => {
     if (currentPage < totalPages) {

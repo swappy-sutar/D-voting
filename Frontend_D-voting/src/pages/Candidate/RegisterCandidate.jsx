@@ -1,17 +1,12 @@
 import React, { useRef, useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import { useWeb3Context } from "../../context/UseWeb3Context";
-import Layout from "../../Components/Layout";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
-import { useNavigate } from "react-router-dom";
+import { ref, uploadBytesResumable, getDownloadURL } from "firebase/storage";
 import { storage } from "../../firebase.js";
-import {
-  getStorage,
-  ref,
-  uploadBytesResumable,
-  getDownloadURL,
-} from "firebase/storage"; // Firebase storage imports
-import { ethers } from "ethers"; // For handling ether conversions
+import Layout from "../../Components/Layout";
+import { ethers } from "ethers";
 
 function RegisterCandidate() {
   const { web3State } = useWeb3Context();
@@ -86,31 +81,35 @@ function RegisterCandidate() {
         const uploadedUrl = await handleFileUpload();
 
         if (uploadedUrl) {
+          setImageUrl(uploadedUrl);
+
           const candidateData = {
             accountAddress: selectedAccount,
             imageUrl: uploadedUrl,
           };
 
-          await fetch("https://d-voting-backend.vercel.app/api/v1/candidate/candidate-image", {
-            method: "POST",
-            headers: {
-              "Content-Type": "application/json",
-              "x-access-token": `${token}`,
-            },
-            body: JSON.stringify(candidateData),
-          });
-
-          // Clear form fields
-          nameRef.current.value = "";
-          ageRef.current.value = "";
-          genderRef.current.value = "";
-          partyRef.current.value = "";
-          depositRef.current.value = "";
-          fileRef.current.value = "";
+          await fetch(
+            "https://d-voting-backend.vercel.app/api/v1/candidate/candidate-image",
+            {
+              method: "POST",
+              headers: {
+                "Content-Type": "application/json",
+                "x-access-token": `${token}`,
+              },
+              body: JSON.stringify(candidateData),
+            }
+          );
         }
       } else {
         toast.error("Failed to register candidate");
       }
+
+      nameRef.current.value = "";
+      ageRef.current.value = "";
+      genderRef.current.value = "";
+      partyRef.current.value = "";
+      depositRef.current.value = "";
+      fileRef.current.value = "";
     } catch (error) {
       console.error("Error during candidate registration:", error.message);
       toast.error(`Error during registration: ${error.message}`);
@@ -132,29 +131,31 @@ function RegisterCandidate() {
     }
 
     try {
-      const storage = getStorage();
-      const storageRef = ref(storage, `candidate-images/${selectedAccount}`);
+     const storageRef = ref(
+       storage,
+       `candidate-images/${selectedAccount}/${file.name}`
+     );
       const uploadTask = uploadBytesResumable(storageRef, file);
 
-      return new Promise((resolve, reject) => {
-        uploadTask.on(
-          "state_changed",
-          (snapshot) => {
-            const progress =
-              (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
-            console.log(`Upload is ${progress}% done`);
-          },
-          (error) => {
-            toast.error(`Upload failed: ${error.message}`);
-            reject(error);
-          },
-          async () => {
-            const downloadUrl = await getDownloadURL(uploadTask.snapshot.ref);
-            setImageUrl(downloadUrl);
-            resolve(downloadUrl);
-          }
-        );
-      });
+
+       return new Promise((resolve, reject) => {
+         uploadTask.on(
+           "state_changed",
+           (snapshot) => {
+             const progress =
+               (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
+             console.log(`Upload is ${progress}% done`);
+           },
+           (error) => {
+             toast.error(`Upload failed: ${error.message}`);
+             reject(error);
+           },
+           async () => {
+             const downloadUrl = await getDownloadURL(uploadTask.snapshot.ref);
+             resolve(downloadUrl);
+           }
+         );
+       });
     } catch (error) {
       toast.error("Failed to upload image.");
       return null;
