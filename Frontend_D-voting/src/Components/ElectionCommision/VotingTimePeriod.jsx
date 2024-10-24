@@ -25,8 +25,17 @@ function VotingTimePeriod() {
         return;
       }
 
-      await contractInstance.setVotingPeriod(startTime, endTime);
-      toast.success("Voting period set successfully.");
+      const transaction = await contractInstance.setVotingPeriod(
+        startTime,
+        endTime
+      );
+
+      const receipt = await transaction.wait();
+      if (receipt.status === 1) {
+        toast.success("Voting period set successfully.");
+      } else {
+        toast.error("Failed to set voting period");
+      }
     } catch (error) {
       console.error(error);
       toast.error("Failed to set voting period. Please try again.");
@@ -35,7 +44,7 @@ function VotingTimePeriod() {
 
   return (
     <div className="flex flex-col items-center justify-center rounded-lg shadow-md bg-gray-100 p-4 ">
-      <ToastContainer /> 
+      <ToastContainer />
       <h2 className="text-xl font-bold text-gray-800 mb-4">
         Set Voting Time Period
       </h2>

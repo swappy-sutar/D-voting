@@ -55,12 +55,15 @@ function Emergency() {
     setLoading(true);
     try {
       const transaction = await contractInstance.emergencyStopVoting();
-      await transaction.wait();
+      const receipt = await transaction.wait();
 
-      // Fetch updated status after stopping the voting
+      if (receipt.status === 1) {
+        toast.success("Voting has been stopped successfully!");
+      } else {
+        toast.error("failed to stop voting!");
+      }
+
       fetchVotingStatus();
-
-      toast.success("Voting has been stopped successfully!");
     } catch (err) {
       console.error(err);
       setError("Failed to stop voting. Please try again.");
