@@ -29,7 +29,7 @@ const GetWeb3State = async () => {
     const provider = new ethers.BrowserProvider(window.ethereum);
     const signer = await provider.getSigner();
 
-    const contractAddress = "0xD88346AA5a16724A39E5976724342455AAEE3DFA"; 
+    const contractAddress = "0xf5c8c50De6456f64F475290C9c16Eaa2AbDe11fC"; 
 
     const message =
       "Welcome to Voting Dapp. You accept our terms and conditions";
