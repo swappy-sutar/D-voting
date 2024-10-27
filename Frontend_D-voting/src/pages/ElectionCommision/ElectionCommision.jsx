@@ -1,17 +1,15 @@
 import React, { useState, useEffect } from "react";
+import { useWeb3Context } from "../../context/UseWeb3Context";
+import { useNavigate } from "react-router-dom";
+
+import Layout from "../../Components/Layout";
 import AnnounceResult from "../../Components/ElectionCommision/AnnounceResult";
 import Emergency from "../../Components/ElectionCommision/Emergency";
 import VotingTimePeriod from "../../Components/ElectionCommision/VotingTimePeriod";
-import Layout from "../../Components/Layout";
 import ResetElection from "../../Components/ElectionCommision/ResetElection";
 import ContractBalance from "../../Components/ElectionCommision/GetContractBalance";
-import { useWeb3Context } from "../../context/UseWeb3Context";
-import { toast, ToastContainer } from "react-toastify";
-import "react-toastify/dist/ReactToastify.css";
-import { useNavigate } from "react-router-dom";
 import TransferETH from "../../Components/ElectionCommision/TransferETH";
 import TransferOwnerShip from "../../Components/ElectionCommision/TransferOwnerShip";
-
 
 function ElectionCommision() {
   const { web3State } = useWeb3Context();
@@ -43,7 +41,6 @@ function ElectionCommision() {
       setVotingStatus(statusString);
     } catch (error) {
       console.error("Error fetching voting status:", error);
-      toast.error("Failed to fetch voting status.");
     }
   };
 
@@ -55,7 +52,6 @@ function ElectionCommision() {
         fetchVotingStatus();
       } catch (error) {
         console.error("Error fetching election commission data:", error);
-        toast.error("Failed to fetch election commission address.");
       }
     };
 
@@ -67,7 +63,6 @@ function ElectionCommision() {
   return (
     <Layout>
       <div className="flex flex-col items-center justify-center my-6 p-4 sm:p-6 md:p-8">
-        <ToastContainer />
         <div className="w-full max-w-5xl bg-white p-6 sm:p-8 md:p-10 rounded-xl shadow-md border border-gray-200">
           <h1 className="text-3xl sm:text-4xl font-extrabold text-gray-900 mb-3 text-center">
             Election Commission Dashboard

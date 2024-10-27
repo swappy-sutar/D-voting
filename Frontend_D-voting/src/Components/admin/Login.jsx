@@ -1,10 +1,15 @@
-import React, { useRef,useEffect } from "react";
+import React, { useRef, useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import Layout from "../Layout";
+import { useWeb3Context } from "../../context/UseWeb3Context";
 
 function Login() {
+  const { web3State } = useWeb3Context();
+  const { contractInstance, selectedAccount } = web3State;
+
+  const [address, setAddress] = useState(null);
   const usernameRef = useRef(null);
   const passwordRef = useRef(null);
   const navigateTo = useNavigate();
@@ -15,6 +20,22 @@ function Login() {
       navigateTo("/");
     }
   }, [navigateTo, token]);
+
+  useEffect(() => {
+    const fetchElectionCommissionData = async () => {
+      if (contractInstance) {
+        try {
+          const electionCommission =
+            await contractInstance.electionCommission();
+          setAddress(electionCommission);
+        } catch (error) {
+          console.error("Error fetching election commission data:", error);
+        }
+      }
+    };
+
+    fetchElectionCommissionData();
+  }, [contractInstance]);
 
   const handleLogin = async (e) => {
     e.preventDefault();
@@ -36,6 +57,11 @@ function Login() {
       );
 
       const data = await response.json();
+
+      if (address.toLowerCase() !== selectedAccount) {
+        toast.error("Permission denied!!");
+        return;
+      }
 
       if (response.ok) {
         toast.success("Login successful!");
