@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { useWeb3Context } from "../../context/UseWeb3Context";
 import { useNavigate } from "react-router-dom"; 
-import { toast, ToastContainer } from "react-toastify";
+import { toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 
 function AnnounceResult() {
@@ -31,7 +31,6 @@ function AnnounceResult() {
 
   return (
     <div className="flex flex-col items-center justify-center rounded-lg shadow-md bg-gray-100 p-12">
-      <ToastContainer />
 
       <button
         onClick={handleAnnounceResult}

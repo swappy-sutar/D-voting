@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { useWeb3Context } from "../../context/UseWeb3Context";
-import { toast, ToastContainer } from "react-toastify";
+import { toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 
 function Emergency() {
@@ -75,7 +75,6 @@ function Emergency() {
 
   return (
     <div className="flex flex-col items-center justify-center rounded-lg shadow-md bg-gray-100 p-14">
-      <ToastContainer />
       {error && <p className="text-red-600 font-semibold mb-4">{error}</p>}
 
       <button

@@ -1,7 +1,7 @@
 import React, { useRef, useState } from "react";
 import { useWeb3Context } from "../../context/UseWeb3Context";
 import { parseEther, isAddress } from "ethers";
-import { toast, ToastContainer } from "react-toastify";
+import { toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 
 function TransferETH() {
@@ -57,7 +57,7 @@ function TransferETH() {
 
   return (
     <div className="flex flex-col items-center justify-center rounded-lg shadow-md bg-gray-100 p-6">
-      <ToastContainer />
+    
       <h2 className="text-xl font-bold mb-4">Transfer From Contract</h2>
 
       <form className="bg-white p-6 rounded-lg shadow-lg w-full max-w-md text-center">

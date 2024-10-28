@@ -1,7 +1,7 @@
 import React, { useState, useRef } from "react";
 import { useWeb3Context } from "../../context/UseWeb3Context";
 import { isAddress } from "ethers";
-import { toast, ToastContainer } from "react-toastify";
+import { toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 
 function TransferOwnerShip() {
@@ -42,7 +42,6 @@ function TransferOwnerShip() {
 
   return (
     <div className="flex flex-col items-center justify-center rounded-lg shadow-md bg-gray-100 p-6">
-      <ToastContainer />
       <h2 className="text-xl font-bold mb-4">
         Change E-Commissioner Ownership
       </h2>

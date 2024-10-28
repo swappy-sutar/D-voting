@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from "react";
 import { useWeb3Context } from "../../context/UseWeb3Context";
 import { useNavigate } from "react-router-dom";
+import { toast, ToastContainer } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
 import Layout from "../../Components/Layout";
 import AnnounceResult from "../../Components/ElectionCommision/AnnounceResult";
@@ -63,6 +65,7 @@ function ElectionCommision() {
   return (
     <Layout>
       <div className="flex flex-col items-center justify-center my-6 p-4 sm:p-6 md:p-8">
+        <ToastContainer />
         <div className="w-full max-w-5xl bg-white p-6 sm:p-8 md:p-10 rounded-xl shadow-md border border-gray-200">
           <h1 className="text-3xl sm:text-4xl font-extrabold text-gray-900 mb-3 text-center">
             Election Commission Dashboard

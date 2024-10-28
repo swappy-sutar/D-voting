@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { useWeb3Context } from "../../context/UseWeb3Context";
-import { toast, ToastContainer } from "react-toastify";
+import { toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { ethers } from "ethers";
 
@@ -24,7 +24,7 @@ function ContractBalance() {
 
   return (
     <div className="flex flex-col items-center justify-center bg-gray-100 rounded-lg shadow-md p-10">
-      <ToastContainer />
+ 
 
       <button
         onClick={handleElectionCommissionBalance}

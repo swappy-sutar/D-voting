@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useWeb3Context } from "../../context/UseWeb3Context";
-import { ToastContainer, toast } from "react-toastify";
+import { toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 
 
@@ -112,7 +112,7 @@ function ResetElection() {
 
   return (
     <div className="flex flex-col items-center justify-center rounded-lg shadow-md bg-gray-100 p-14">
-      <ToastContainer />
+   
       <button
         onClick={handleResetElection}
         disabled={loading}
