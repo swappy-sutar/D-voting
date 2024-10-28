@@ -169,7 +169,7 @@ function GetCandidate() {
                           {candidate.address}
                         </td>
                         <td className="px-5 py-4 text-sm font-bold text-gray-500 h-20">
-                          {candidate.party}
+                          {candidate.party.toUpperCase()}
                         </td>
                         <td className="px-5 py-4 text-sm text-gray-500 h-20">
                           {candidate.gender === 1
