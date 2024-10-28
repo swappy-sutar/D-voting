@@ -41,8 +41,23 @@ function RegisterVoter() {
       const age = parseInt(ageRef.current.value, 10);
       const genderInput = parseInt(genderRef.current.value, 10);
 
+      if (!name || !fileRef.current.files[0]) {
+        toast.error("Please fill all required fields.");
+        setLoading(false);
+        return;
+      }
+
       if (age < 18) {
         toast.error("You must be at least 18 years old to register.");
+        setLoading(false);
+        return;
+      }
+
+      const voterExists = await fetchAddress();
+      console.log("voterExists", voterExists);
+
+      if (voterExists) {
+        toast.error("Voter already exists!");
         setLoading(false);
         return;
       }
@@ -95,10 +110,41 @@ function RegisterVoter() {
     }
   };
 
+  const fetchAddress = async () => {
+    try {
+      const response = await fetch(
+        "https://d-voting-backend.vercel.app/api/v1/voter/get-voter-list",
+        {
+          headers: {
+            "Content-Type": "application/json",
+            "x-access-token": token,
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+      const res = await response.json();
+
+      if (res.status) {
+        const voterAddresses = res.data.map((voter) => voter.accountAddress);
+        return voterAddresses.includes(selectedAccount);
+      }
+      return false;
+    } catch (error) {
+      console.error("Failed to fetch voter list:", error);
+
+      return false;
+    }
+  };
+
   const handleFileUpload = async () => {
     const file = fileRef.current.files[0];
     if (!file) {
       toast.error("Please select an image to upload.");
+      return null;
+    }
+
+    if (!file.type.startsWith("image/")) {
+      toast.error("Only image files are allowed.");
       return null;
     }
 
@@ -123,7 +169,7 @@ function RegisterVoter() {
           },
           async () => {
             const downloadUrl = await getDownloadURL(uploadTask.snapshot.ref);
-            resolve(downloadUrl); 
+            resolve(downloadUrl);
           }
         );
       });
@@ -137,13 +183,13 @@ function RegisterVoter() {
   return (
     <Layout>
       <ToastContainer />
-      <div className="flex items-center justify-center py-8">
+      <div className="flex items-center my-14 mx-2 justify-center">
         <form
           onSubmit={handleVoterRegistration}
           className="w-full max-w-lg bg-white p-8 rounded-lg shadow-lg space-y-4 md:max-w-md border"
         >
           <h2 className="text-3xl font-extrabold text-gray-900 mb-8 text-center">
-            Register as a Voter
+            Register Voter
           </h2>
 
           <div>
@@ -194,6 +240,7 @@ function RegisterVoter() {
               type="file"
               ref={fileRef}
               className="mt-1 w-full px-4 py-1 border border-gray-300 rounded-md bg-white text-gray-600 file:mr-3 file:py-2 file:px-3 file:rounded file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-600 hover:file:bg-blue-100 focus:outline-none"
+              required
             />
           </div>
 
@@ -202,7 +249,7 @@ function RegisterVoter() {
             disabled={loading}
             className={`w-full py-3 mt-4 ${
               loading ? "bg-gray-400" : "bg-blue-600"
-            } text-white font-semibold rounded-md transition duration-300 flex items-center justify-center bg-gradient-to-r from-blue-500 to-indigo-500`}
+            } text-white font-semibold rounded-md transition duration-300 flex items-center justify-center`}
           >
             {loading ? (
               <>
@@ -238,8 +285,8 @@ function RegisterVoter() {
             className="mt-4 text-center"
           >
             Are you a candidate?{" "}
-            <span className="text-blue-500 hover:underline cursor-pointer">
-              Click here
+            <span className="mt-4 text-center cursor-pointer text-blue-500 hover:underline">
+              Click to register.
             </span>
           </p>
         </form>

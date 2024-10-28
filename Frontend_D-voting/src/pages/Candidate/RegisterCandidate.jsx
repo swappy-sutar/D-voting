@@ -14,8 +14,9 @@ function RegisterCandidate() {
   const [loading, setLoading] = useState(false);
   const [imageUrl, setImageUrl] = useState("");
 
-  const navigateTo = useNavigate();
   const token = localStorage.getItem("token");
+
+  const navigateTo = useNavigate();
 
   useEffect(() => {
     if (!token) {
@@ -34,9 +35,8 @@ function RegisterCandidate() {
     e.preventDefault();
 
     if (!contractInstance || !selectedAccount) {
-      toast.error("Please connect wallet and try again later!");
-      navigateTo("/");
-      return;
+      toast.error("Please connect your wallet and try again later!");
+      return navigateTo("/");
     }
 
     setLoading(true);
@@ -48,6 +48,18 @@ function RegisterCandidate() {
       const party = partyRef.current.value;
       const valueEth = depositRef.current.value;
 
+      if (!name || !party || !fileRef.current.files[0]) {
+        toast.error("Please fill all required fields.");
+        setLoading(false);
+        return;
+      }
+
+      if (age < 18) {
+        toast.error("You must be at least 18 years old.");
+        setLoading(false);
+        return;
+      }
+
       if (parseFloat(valueEth) < 0.001) {
         toast.error("Deposit amount should be 0.001 ETH or more.");
         setLoading(false);
@@ -56,8 +68,9 @@ function RegisterCandidate() {
 
       const valueWei = ethers.parseEther(valueEth);
 
-      if (age < 18) {
-        toast.error("You are underage");
+      const candidateExists = await fetchAddress();
+      if (candidateExists) {
+        toast.error("Candidate already exists!");
         setLoading(false);
         return;
       }
@@ -79,7 +92,6 @@ function RegisterCandidate() {
         toast.success("Candidate registered successfully!");
 
         const uploadedUrl = await handleFileUpload();
-
         if (uploadedUrl) {
           setImageUrl(uploadedUrl);
 
@@ -94,7 +106,7 @@ function RegisterCandidate() {
               method: "POST",
               headers: {
                 "Content-Type": "application/json",
-                "x-access-token": `${token}`,
+                "x-access-token": token,
               },
               body: JSON.stringify(candidateData),
             }
@@ -118,6 +130,32 @@ function RegisterCandidate() {
     }
   };
 
+  const fetchAddress = async () => {
+    try {
+      const response = await fetch(
+        "https://d-voting-backend.vercel.app/api/v1/candidate/get-candidate-list",
+        {
+          headers: {
+            "Content-Type": "application/json",
+            "x-access-token": token,
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+      const res = await response.json();
+      if (res.status) {
+        const candidateAddresses = res.data.map(
+          (candidate) => candidate.accountAddress
+        );
+        return candidateAddresses.includes(selectedAccount);
+      }
+      return false;
+    } catch (error) {
+      console.error("Failed to fetch candidate list:", error);
+      return false;
+    }
+  };
+
   const handleFileUpload = async () => {
     const file = fileRef.current.files[0];
     if (!file) {
@@ -131,32 +169,32 @@ function RegisterCandidate() {
     }
 
     try {
-     const storageRef = ref(
-       storage,
-       `candidate-images/${selectedAccount}/${file.name}`
-     );
+      const storageRef = ref(
+        storage,
+        `candidate-images/${selectedAccount}/${file.name}`
+      );
       const uploadTask = uploadBytesResumable(storageRef, file);
 
-
-       return new Promise((resolve, reject) => {
-         uploadTask.on(
-           "state_changed",
-           (snapshot) => {
-             const progress =
-               (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
-             console.log(`Upload is ${progress}% done`);
-           },
-           (error) => {
-             toast.error(`Upload failed: ${error.message}`);
-             reject(error);
-           },
-           async () => {
-             const downloadUrl = await getDownloadURL(uploadTask.snapshot.ref);
-             resolve(downloadUrl);
-           }
-         );
-       });
+      return new Promise((resolve, reject) => {
+        uploadTask.on(
+          "state_changed",
+          (snapshot) => {
+            const progress =
+              (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
+            console.log(`Upload is ${progress}% done`);
+          },
+          (error) => {
+            toast.error(`Upload failed: ${error.message}`);
+            reject(error);
+          },
+          async () => {
+            const downloadUrl = await getDownloadURL(uploadTask.snapshot.ref);
+            resolve(downloadUrl);
+          }
+        );
+      });
     } catch (error) {
+      console.error("File upload error:", error.message || error);
       toast.error("Failed to upload image.");
       return null;
     }
@@ -236,21 +274,20 @@ function RegisterCandidate() {
               type="text"
               ref={depositRef}
               className="mt-1 w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-              placeholder="Enter deposit amount in ETH"
+              placeholder="Enter deposit amount"
               required
             />
           </div>
 
           <div>
             <label className="block text-gray-700 font-semibold">
-              Upload Image:
+              Image Upload:
             </label>
             <input
               type="file"
               ref={fileRef}
-              accept="image/*" // Only accept image files
               className="mt-1 w-full px-4 py-1 border border-gray-300 rounded-md bg-white text-gray-600 file:mr-3 file:py-2 file:px-3 file:rounded file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-600 hover:file:bg-blue-100 focus:outline-none"
-              required // Make the file input required
+              required
             />
           </div>
 
@@ -259,7 +296,7 @@ function RegisterCandidate() {
             disabled={loading}
             className={`w-full py-3 mt-4 ${
               loading ? "bg-gray-400" : "bg-blue-600"
-            } text-white font-semibold rounded-md transition duration-300 flex items-center justify-center bg-gradient-to-r from-blue-500 to-indigo-500`}
+            } text-white font-semibold rounded-md transition duration-300 flex items-center justify-center`}
           >
             {loading ? (
               <>
@@ -280,15 +317,24 @@ function RegisterCandidate() {
                   <path
                     className="opacity-75"
                     fill="currentColor"
-                    d="M4 12c0-4.418 3.582-8 8-8s8 3.582 8 8-3.582 8-8 8-8-3.582-8-8z"
+                    d="M4 12a8 8 0 018-8v8H4z"
                   />
                 </svg>
-                Processing...
+                Registering...
               </>
             ) : (
-              "Register Candidate"
+              "Register"
             )}
           </button>
+          <p
+            onClick={() => navigateTo("/register-voter")}
+            className="mt-4 text-center"
+          >
+            Are you a voter?{" "}
+            <span className="mt-4 text-center cursor-pointer text-blue-500 hover:underline">
+              Click to register.
+            </span>
+          </p>
         </form>
       </div>
     </Layout>
