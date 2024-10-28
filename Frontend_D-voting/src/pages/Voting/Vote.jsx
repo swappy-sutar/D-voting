@@ -5,7 +5,6 @@ import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { useNavigate } from "react-router-dom";
 
-
 function Vote() {
   const { web3State } = useWeb3Context();
   const { contractInstance } = web3State;
@@ -15,6 +14,9 @@ function Vote() {
   const [votingStatus, setVotingStatus] = useState("");
   const [candidateImages, setCandidateImages] = useState([]);
   const [votingLoading, setVotingLoading] = useState({});
+  const [startTime, setStartTime] = useState(null);
+  const [endTime, setEndTime] = useState(null);
+  const [currentTime, setCurrentTime] = useState(new Date());
 
   const navigateTo = useNavigate();
   const token = localStorage.getItem("token");
@@ -23,7 +25,7 @@ function Vote() {
     if (!token || !contractInstance) {
       navigateTo("/");
     }
-  }, [contractInstance, token]);
+  }, [contractInstance, token, navigateTo]);
 
   const votingStatusMap = {
     0: "Not Started",
@@ -37,6 +39,7 @@ function Vote() {
       setLoading(true);
       try {
         if (!contractInstance) return;
+        fetchVotingTime();
 
         const candidateAddresses = await contractInstance.getCandidateList();
         if (candidateAddresses.length === 0) {
@@ -67,9 +70,9 @@ function Vote() {
     };
 
     const fetchImages = async () => {
-
       try {
-        const response = await fetch(`https://d-voting-backend.vercel.app/api/v1/candidate/get-candidate-list`,
+        const response = await fetch(
+          `https://d-voting-backend.vercel.app/api/v1/candidate/get-candidate-list`,
           {
             headers: {
               "Content-Type": "application/json",
@@ -95,6 +98,25 @@ function Vote() {
       }
     };
 
+   const fetchVotingTime = async () => {
+     try {
+       const start = BigInt(await contractInstance.startTime());
+       const end = BigInt(await contractInstance.endTime());
+ console.log(start, end);
+ 
+       if (start === 0n && end === 0n) {
+         setStartTime(null);
+         setEndTime(null);
+       } else {
+         setStartTime(new Date(Number(start) * 1000));
+         setEndTime(new Date(Number(end) * 1000));
+       }
+     } catch (error) {
+       console.error("Failed to fetch voting time:", error);
+       toast.error("Failed to fetch voting time.");
+     }
+   };
+
     const fetchVotingStatus = async () => {
       try {
         const status = await contractInstance.getVotingStatus();
@@ -112,6 +134,24 @@ function Vote() {
       fetchImages();
     }
   }, [contractInstance, token]);
+
+ 
+  useEffect(() => {
+    const intervalId = setInterval(() => {
+      setCurrentTime(new Date());
+    }, 1000);
+
+    return () => clearInterval(intervalId);
+  }, []);
+
+  const formatDigitalClock = (date) => {
+    return date.toLocaleTimeString([], {
+      hour: "2-digit",
+      minute: "2-digit",
+      second: "2-digit",
+      hour12: true,
+    });
+  };
 
   const getCandidateImage = (candidateAddress) => {
     const candidateImage = candidateImages.find(
@@ -131,24 +171,25 @@ function Vote() {
     );
   };
 
-  const vote = async (candidate) => {
-    try {
-      setVotingLoading((prev) => ({ ...prev, [candidate.address]: true }));
-      const candidateAddress = candidate.address;
-      const transaction = await contractInstance.vote(candidateAddress);
-      const receipt = await transaction.wait();
+const vote = async (candidate) => {
+  try {
+    setVotingLoading((prev) => ({ ...prev, [candidate.address]: true }));
+    const candidateAddress = candidate.address;
+    const transaction = await contractInstance.vote(candidateAddress);
+    const receipt = await transaction.wait();
 
-      if (receipt.status === 1) {
-        toast.success(`Voted successfully for ${candidate.name}!`);
-      } else {
-        toast.error("Voting failed.");
-      }
-    } catch (error) {
-      toast.error("Error during voting.");
-    } finally {
-      setVotingLoading((prev) => ({ ...prev, [candidate.address]: false }));
+    if (receipt.status === 1) {
+      toast.success(`Voted successfully for ${candidate.name}!`);
+    } else {
+      toast.error("Voting failed.");
     }
-  };
+  } catch (error) {
+    toast.error("Error during voting.");
+  } finally {
+    setVotingLoading((prev) => ({ ...prev, [candidate.address]: false }));
+  }
+};
+
 
   return (
     <Layout>
@@ -157,9 +198,31 @@ function Vote() {
           <h2 className="text-3xl font-extrabold text-gray-900 mb-5 text-center">
             Vote for Your Candidate
           </h2>
-          <h3 className="text-lg font-extrabold text-gray-500 mb-4 text-center">
-            Status: Voting is "{votingStatus}"
-          </h3>
+
+          <div className="mb-6 p-4 border rounded-lg shadow-md bg-gray-100">
+            <h3 className="text-lg font-bold text-gray-500 mb-4 text-center">
+              Status: Voting is{" "}
+              <span className="text-red-500 font-extrabold">
+                "{votingStatus}"
+              </span>
+            </h3>
+            <h3 className="text-lg font-bold text-gray-500 mb-4 text-center">
+              Current Time:
+              <span className="text-blue-500 font-extrabold clock-display">
+                {formatDigitalClock(currentTime)}
+              </span>
+            </h3>
+            <h3 className="text-lg font-bold text-gray-500 mb-4 text-center">
+              Start:{" "}
+              <span className="text-indigo-500 font-extrabold">
+                {startTime ? formatDigitalClock(startTime) : "Not set"}{" "}
+              </span>
+              End:{" "}
+              <span className="text-indigo-500 font-extrabold">
+                {endTime  ? formatDigitalClock(endTime) : "Not set"}
+              </span>
+            </h3>
+          </div>
 
           {loading ? (
             <p className="text-center text-gray-600">Loading...</p>
@@ -203,23 +266,23 @@ function Vote() {
                         <td className="px-6 py-4 text-sm font-bold text-gray-900">
                           {index + 1}
                         </td>
-                        <td className="px-6 py-4 text-sm  text-gray-500">
+                        <td className="px-6 py-4 text-sm text-gray-500">
                           {candidate.name}
                         </td>
                         <td className="px-6 py-4 text-sm font-bold text-black">
-                          {candidate.party}
+                          {candidate.party.toUpperCase()}
                         </td>
                         <td className="px-6 py-4 text-sm text-gray-500">
                           {getCandidateImage(candidate.address)}
                         </td>
-                        <td className="px-6 py-4">
+                        <td className="px-6 py-4 text-sm font-medium">
                           <button
-                            onClick={() => vote(candidate)}
-                            className={`px-4 py-2 text-white font-semibold rounded-lg shadow-md ${
+                            className={`bg-blue-500 text-white rounded-md px-4 py-2 ${
                               votingLoading[candidate.address]
-                                ? "bg-gray-400 cursor-not-allowed"
-                                : "bg-blue-600 hover:bg-blue-500"
+                                ? "opacity-50"
+                                : ""
                             }`}
+                            onClick={() => vote(candidate)}
                             disabled={votingLoading[candidate.address]}
                           >
                             {votingLoading[candidate.address]
