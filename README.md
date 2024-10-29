@@ -34,6 +34,17 @@ Ensure you have the following installed:
 
 Clone the repository to your local machine: [Clone Repo](https://github.com/swappy-sutar/D-voting.git)
 
+
+## Add Polygon Amoy Test Network
+Add the following network to your MetaMask wallet:
+
+- Network Name: Polygon Amoy Testnet
+- New RPC URL: https://rpc-amoy.polygon.technology/
+- Chain ID: 80002
+- Currency Symbol: MATIC
+- Block Explorer URL: https://amoy.polygonscan.com/
+- Faucet: https://faucet.polygon.technology/
+
 ## Check the Logs
 
 - The contract is deployed on the Polygon Amoy Test Network.
