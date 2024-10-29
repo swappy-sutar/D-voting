@@ -32,9 +32,7 @@ Ensure you have the following installed:
 
 ### Clone the Repository
 
-Clone the repository to your local machine:
-
-[Clone Repo](https://github.com/swappy-sutar/D-voting.git)
+Clone the repository to your local machine: [Clone Repo](https://github.com/swappy-sutar/D-voting.git)
 
 ## Check the Logs
 
