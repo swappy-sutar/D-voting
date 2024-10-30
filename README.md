@@ -11,8 +11,10 @@ A decentralized application (DApp) for conducting transparent and secure voting 
 - **Solidity**: Smart contract development language for the Ethereum blockchain.
 - **Ether.js**: JavaScript library to interact with Ethereum blockchain and smart contracts.
 - **React.js**: Frontend library for building user interfaces.
+- **Tailwind CSS**: Utility-first CSS framework for styling applications.
 - **Express.js**: Backend framework for handling API requests.
 - **MongoDB**: Database to store user and voting information.
+- **Fire-Store**: To Store image of all Voters and Candidates
 
 ## Features
 
